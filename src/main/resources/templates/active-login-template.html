@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html
+        lang="pt-BR"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+            rel="stylesheet"
+    />
+    <meta charset="UTF-8"/>
+    <style>
+        * {
+            outline: none;
+        }
+
+        body {
+            font-family: Inter, sans-serif;
+            background-color: #f4f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #333333;
+            font-size: 22px;
+        }
+
+        p {
+            color: #555555;
+            font-size: 16px;
+        }
+
+        .code-box {
+            position: relative;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 28px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #999999;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #777;
+            transition: 200ms;
+        }
+
+        .icon {
+            display: block;
+            width: 16px;
+            height: 16px;
+            fill: #777;
+            transition: 200ms;
+        }
+
+        .icon-check {
+            display: none;
+            width: 16px;
+            height: 16px;
+            fill: #5cb85c;
+        }
+
+        .button.copied {
+            border: 1px solid #5cb85c;
+        }
+
+        .button.copied .icon {
+            display: none;
+        }
+
+        .button.copied .icon-check {
+            display: block;
+        }
+
+        .button:hover:not(.copied) {
+            border: 1px solid #222;
+        }
+
+        .button:hover:not(.copied) .icon {
+            fill: #222;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Olá,</h1>
+    <p>Utilize o código abaixo para entrar na sua conta:</p>
+
+    <div class="code-box">
+        <span id="verication-code" th:text="${verificationCode}"></span>
+        <button class="button">
+            <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 448 512"
+                    class="icon"
+            >
+                <path
+                        d="M384 336l-192 0c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l140.1 0L400 115.9 400 320c0 8.8-7.2 16-16 16zM192 384l192 0c35.3 0 64-28.7 64-64l0-204.1c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1L192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-32-48 0 0 32c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l32 0 0-48-32 0z"
+                />
+            </svg>
+            <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 448 512"
+                    class="icon-check"
+            >
+                <path
+                        d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"
+                />
+            </svg>
+        </button>
+    </div>
+
+    <p>
+        Este código é válido por <strong>15 minutos</strong>. Se você não
+        solicitou esse código, ignore este e-mail.
+    </p>
+
+    <div class="footer">© 2025 Ecommerce. Todos os direitos reservados.</div>
+</div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const verificationCode = document.querySelector("#verication-code");
+        const btn = document.querySelector(".button");
+        const TIME_OUT = 2000;
+
+        if (!btn) return;
+
+        let timeoutId;
+
+        const handlePressed = () => {
+            if (btn.classList.contains("copied")) return;
+
+            btn.classList.add("copied");
+
+            navigator.clipboard
+                .writeText(verificationCode.innerHTML)
+                .catch(() =>
+                    console.error("ERROR: erro ao copiar o verification code")
+                );
+
+            timeoutId = setTimeout(() => {
+                btn.classList.remove("copied");
+            }, TIME_OUT);
+        };
+
+        btn.addEventListener("click", handlePressed);
+    });
+</script>
+</html>
