@@ -61,6 +61,9 @@ public class Client extends Auditable implements UserDetails {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private LoginPending loginPending;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private RecoverPassword recoverPassword;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
