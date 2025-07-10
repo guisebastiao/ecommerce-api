@@ -7,7 +7,7 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
  - Java 21 
  - Spring Boot 3
  - Spring Data JPA
- - PostgreSQL
+ - PostgresSQL
  - Spring Security
  - JWT (JJWT)
  - OAuth2 Resource Server
@@ -18,7 +18,6 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
  - Thymeleaf
  - Lombok
  - Docker & Docker Compose
- - Swagger / OpenAPI
 
 ## 📁 Estrutura Inicial do Projeto
 
@@ -78,16 +77,22 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
     Defina as variaveis de ambientes:
 
     - DB_URL
+    - DB_DATABASE
     - DB_USER
     - DB_PASS
+    - MQ_USER
+    - MQ_PASS
+    - PG_EMAIL
+    - PG_PASS
+    - MINIO_USER
+    - MINIO_PASS
     - JWT_SECRET
+    - JWT_DURATION
     - CLIENT_ID
     - CLIENT_SECRET
     - MAIL_USER
     - MAIL_PASS
     - FRONT_URL
-    - MQ_USER
-    - MQ_PASS
 
 #### 3. Execute o docker compose
 
@@ -100,13 +105,6 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
 ```bash
   mnv clean install -DskipTests
   mvn spring-boot:run
-```
-
-## 📌 Documentação da API
-A documentação da API está disponível via Swagger após iniciar a aplicação:
-
-```bash
-  http://localhost:8080/swagger-ui.html
 ```
 
 ## 📄 Licença
