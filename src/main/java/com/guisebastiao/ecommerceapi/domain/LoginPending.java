@@ -18,11 +18,14 @@ public class LoginPending extends Auditable {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "verification_expires")
+    @Column(name = "verification_expires", nullable = false)
     private LocalDateTime verificationExpires;
 
-    @Column(name = "verification_code")
+    @Column(name = "verification_code", length = 6, nullable = false)
     private String verificationCode;
+
+    @Column(length = 45, nullable = false)
+    private String code;
 
     @OneToOne
     @JoinColumn(name = "client_id", nullable = false)

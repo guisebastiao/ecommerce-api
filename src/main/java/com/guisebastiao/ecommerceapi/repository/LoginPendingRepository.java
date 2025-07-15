@@ -12,8 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LoginPendingRepository extends JpaRepository<LoginPending, UUID> {
-    @Query("SELECT lp FROM LoginPending lp WHERE lp.verificationCode = :verificationCode")
-    Optional<LoginPending> findByVerificationCode(@Param("verificationCode") String verificationCode);
+    @Query("SELECT lp FROM LoginPending lp WHERE lp.code = :code")
+    Optional<LoginPending> findByCode(@Param("code") String code);
 
     @Modifying
     @Transactional

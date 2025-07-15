@@ -1,6 +1,7 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.AccountPending;
+import com.guisebastiao.ecommerceapi.domain.Address;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.LoginPending;
 import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
@@ -15,8 +16,10 @@ import com.guisebastiao.ecommerceapi.dto.response.RefreshTokenResponseDTO;
 import com.guisebastiao.ecommerceapi.enums.AccountStatus;
 import com.guisebastiao.ecommerceapi.enums.Role;
 import com.guisebastiao.ecommerceapi.exception.*;
+import com.guisebastiao.ecommerceapi.mapper.AddressMapper;
 import com.guisebastiao.ecommerceapi.mapper.ClientMapper;
 import com.guisebastiao.ecommerceapi.repository.AccountPendingRepository;
+import com.guisebastiao.ecommerceapi.repository.AddressRepository;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.repository.LoginPendingRepository;
 import com.guisebastiao.ecommerceapi.security.JsonWebTokenService;
@@ -48,6 +51,9 @@ public class AuthServiceImpl implements AuthService {
     private AccountPendingRepository accountPendingRepository;
 
     @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
     private JsonWebTokenService jsonWebTokenService;
 
     @Autowired
@@ -61,6 +67,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private ClientMapper clientMapper;
+
+    @Autowired
+    private AddressMapper addressMapper;
 
     @Autowired
     private CodeGenerator codeGenerator;
@@ -88,12 +97,14 @@ public class AuthServiceImpl implements AuthService {
         this.loginPendingRepository.deleteByClientId(client.getId());
 
         String verificationCode = this.generateSecureSixDigitCode();
+        String code = this.codeGenerator.generateToken();
 
         LocalDateTime now = LocalDateTime.now().plusMinutes(15);
 
         LoginPending loginPending = new LoginPending();
         loginPending.setVerificationCode(verificationCode);
         loginPending.setVerificationExpires(now);
+        loginPending.setCode(code);
         loginPending.setClient(client);
 
         this.loginPendingRepository.save(loginPending);
@@ -105,15 +116,17 @@ public class AuthServiceImpl implements AuthService {
 
         this.rabbitMailService.producer(mailDTO);
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(client.getId(), client.getEmail());
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(code);
         return new DefaultDTO<LoginResponseDTO>(Boolean.TRUE, "Um email foi enviado para você", loginResponseDTO);
     }
 
     @Override
     @Transactional
     public DefaultDTO<ActiveLoginResponseDTO> activeLogin(ActiveLoginRequestDTO activeLoginRequestDTO) {
-        Client client = this.clientRepository.findById(activeLoginRequestDTO.clientId())
+        LoginPending loginPending = this.loginPendingRepository.findByCode(activeLoginRequestDTO.code())
                 .orElseThrow(() -> new BadRequestException("Algo deu errado ao completar seu login"));
+
+        Client client = loginPending.getClient();
 
         if(client.getLoginPending() == null) {
             throw new BadRequestException("Nenhuma verificação pendente");
