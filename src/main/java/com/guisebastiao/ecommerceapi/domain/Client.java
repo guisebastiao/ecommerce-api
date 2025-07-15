@@ -64,6 +64,9 @@ public class Client extends Auditable implements UserDetails {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private RecoverPassword recoverPassword;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ClientPicture clientPicture;
+
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Address> address;
 

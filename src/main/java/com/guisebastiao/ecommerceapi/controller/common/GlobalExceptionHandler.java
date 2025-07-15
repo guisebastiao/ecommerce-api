@@ -61,6 +61,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
+    @ExceptionHandler(FailedUploadFileException.class)
+    public ResponseEntity<DefaultDTO<Void>> handleFailedUploadFileException(Exception e) {
+        DefaultDTO<Void> response = new DefaultDTO(Boolean.FALSE, e.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
+    }
+
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<DefaultDTO<Void>> handleNotFound(NoHandlerFoundException e) {
         DefaultDTO<Void> response = new DefaultDTO<Void>(Boolean.FALSE, "Rota não encontrada", null);
