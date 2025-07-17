@@ -2,12 +2,11 @@ package com.guisebastiao.ecommerceapi.controller;
 
 import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
 import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
 import com.guisebastiao.ecommerceapi.dto.request.AddressRequestDTO;
 import com.guisebastiao.ecommerceapi.dto.response.AddressResponseDTO;
 import com.guisebastiao.ecommerceapi.service.AddressService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +26,8 @@ public class AddressController {
     }
 
     @GetMapping
-    public ResponseEntity<DefaultDTO<PageResponseDTO<AddressResponseDTO>>> findAllAddresses(@RequestParam @Min(0) Integer offset, @RequestParam @Min(0) @Max(50) Integer limit) {
-        DefaultDTO<PageResponseDTO<AddressResponseDTO>> response = this.addressService.findAllAddresses(offset, limit);
+    public ResponseEntity<DefaultDTO<PageResponseDTO<AddressResponseDTO>>> findAllAddresses(@Valid PaginationFilterDTO pagination) {
+        DefaultDTO<PageResponseDTO<AddressResponseDTO>> response = this.addressService.findAllAddresses(pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

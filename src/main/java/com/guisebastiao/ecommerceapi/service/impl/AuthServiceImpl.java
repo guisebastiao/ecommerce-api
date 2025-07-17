@@ -146,7 +146,7 @@ public class AuthServiceImpl implements AuthService {
         Client client = this.findClientByEmail(registerRequestDTO.email());
 
         if(client != null && client.getStatus() != AccountStatus.PENDING){
-            throw new DuplicateEntityException("Esse email já está cadastrado");
+            throw new ConflictEntityException("Esse email já está cadastrado");
         }
 
         Client saveClient;

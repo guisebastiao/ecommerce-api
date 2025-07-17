@@ -19,5 +19,8 @@ public record ProductRequestDTO(
 
         @NotNull(message = "Informe a quantidade do estoque")
         @Min(value = 0, message = "O estoque não pode ser negativo")
-        Integer stock
+        Integer stock,
+
+        @NotBlank(message = "Informe a categoria do produto")
+        String categoryId
 ) { }

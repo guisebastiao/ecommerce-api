@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
 
-    @ExceptionHandler(DuplicateEntityException.class)
-    public ResponseEntity<DefaultDTO<Void>> handleDuplicateEntityException(DuplicateEntityException e) {
+    @ExceptionHandler(ConflictEntityException.class)
+    public ResponseEntity<DefaultDTO<Void>> handleDuplicateEntityException(ConflictEntityException e) {
         DefaultDTO<Void> response = new DefaultDTO<Void>(Boolean.FALSE, e.getMessage(), null);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }

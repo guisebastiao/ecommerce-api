@@ -32,4 +32,8 @@ public class Product extends Auditable {
 
     @Column(nullable = false)
     private Boolean available = true;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 }

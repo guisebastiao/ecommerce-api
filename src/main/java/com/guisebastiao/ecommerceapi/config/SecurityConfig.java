@@ -102,11 +102,11 @@ public class SecurityConfig {
                 .csrf().disable()
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
-                        .requestMatchers("/auth/**", "/recover-password/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/product/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/product/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/product/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/product/**", "category/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/**", "/recover-password/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/product/**", "category/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/product/**", "category/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/product/**", "category/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
