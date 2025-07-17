@@ -20,7 +20,7 @@ public class ClientPicture extends Auditable {
     @Column(length = 45, nullable = false, unique = true)
     private String objectId;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 }

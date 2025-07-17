@@ -1,7 +1,6 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.AccountPending;
-import com.guisebastiao.ecommerceapi.domain.Address;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.LoginPending;
 import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
@@ -16,10 +15,8 @@ import com.guisebastiao.ecommerceapi.dto.response.RefreshTokenResponseDTO;
 import com.guisebastiao.ecommerceapi.enums.AccountStatus;
 import com.guisebastiao.ecommerceapi.enums.Role;
 import com.guisebastiao.ecommerceapi.exception.*;
-import com.guisebastiao.ecommerceapi.mapper.AddressMapper;
 import com.guisebastiao.ecommerceapi.mapper.ClientMapper;
 import com.guisebastiao.ecommerceapi.repository.AccountPendingRepository;
-import com.guisebastiao.ecommerceapi.repository.AddressRepository;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.repository.LoginPendingRepository;
 import com.guisebastiao.ecommerceapi.security.JsonWebTokenService;
@@ -51,9 +48,6 @@ public class AuthServiceImpl implements AuthService {
     private AccountPendingRepository accountPendingRepository;
 
     @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
     private JsonWebTokenService jsonWebTokenService;
 
     @Autowired
@@ -67,9 +61,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private ClientMapper clientMapper;
-
-    @Autowired
-    private AddressMapper addressMapper;
 
     @Autowired
     private CodeGenerator codeGenerator;

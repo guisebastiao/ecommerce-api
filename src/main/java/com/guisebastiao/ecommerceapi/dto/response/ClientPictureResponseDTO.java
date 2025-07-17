@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record ClientPictureResponseDTO(
         UUID id,
-        String ObjectId,
+        String objectId,
         String url
 ) { }

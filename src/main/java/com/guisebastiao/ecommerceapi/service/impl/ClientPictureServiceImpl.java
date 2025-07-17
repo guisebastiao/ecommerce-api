@@ -7,6 +7,7 @@ import com.guisebastiao.ecommerceapi.dto.request.ClientPictureRequestDTO;
 import com.guisebastiao.ecommerceapi.dto.response.ClientPictureResponseDTO;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.FailedUploadFileException;
+import com.guisebastiao.ecommerceapi.mapper.ClientPictureMapper;
 import com.guisebastiao.ecommerceapi.repository.ClientPictureRepository;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
@@ -43,6 +44,9 @@ public class ClientPictureServiceImpl implements ClientPictureService {
 
     @Autowired
     private ClientAuthProvider clientAuthProvider;
+
+    @Autowired
+    private ClientPictureMapper clientPictureMapper;
 
     @Override
     public DefaultDTO<Void> createClientPicture(ClientPictureRequestDTO clientPictureRequestDTO) {
