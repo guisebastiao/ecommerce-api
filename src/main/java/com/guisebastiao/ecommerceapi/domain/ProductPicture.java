@@ -10,8 +10,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "client_pictures")
-public class ClientPicture extends Auditable {
+@Table(name = "product_pictures")
+public class ProductPicture extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,7 +20,7 @@ public class ClientPicture extends Auditable {
     @Column(length = 45, nullable = false, unique = true)
     private String objectId;
 
-    @OneToOne
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }

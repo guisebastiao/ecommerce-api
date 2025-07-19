@@ -41,6 +41,8 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
         ├── exception/
         │
         ├── mapper/
+        │   │
+        │   └── resolve/
         │
         ├── repository/
         │

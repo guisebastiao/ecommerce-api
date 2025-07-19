@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -32,6 +33,9 @@ public class Product extends Auditable {
 
     @Column(nullable = false)
     private Boolean available = true;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductPicture> productPictures;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)

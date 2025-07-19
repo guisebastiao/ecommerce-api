@@ -45,9 +45,6 @@ public class ClientPictureServiceImpl implements ClientPictureService {
     @Autowired
     private ClientAuthProvider clientAuthProvider;
 
-    @Autowired
-    private ClientPictureMapper clientPictureMapper;
-
     @Override
     public DefaultDTO<Void> createClientPicture(ClientPictureRequestDTO clientPictureRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();

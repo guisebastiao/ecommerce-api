@@ -7,7 +7,7 @@ import com.guisebastiao.ecommerceapi.mapper.resolver.ProductResolver;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {CategoryMapper.class, ProductResolver.class})
+@Mapper(componentModel = "spring", uses = {CategoryMapper.class, ProductResolver.class, ProductPictureMapper.class})
 public interface ProductMapper {
     Product toEntity(ProductRequestDTO productRequestDTO);
 

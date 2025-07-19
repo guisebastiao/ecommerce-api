@@ -3,6 +3,7 @@ package com.guisebastiao.ecommerceapi.dto.response;
 import com.guisebastiao.ecommerceapi.dto.request.DiscountRequestDTO;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 public record ProductResponseDTO(
@@ -15,5 +16,6 @@ public record ProductResponseDTO(
         Boolean available,
         Boolean haveDiscount,
         CategoryResponseDTO category,
-        DiscountRequestDTO discount
+        DiscountRequestDTO discount,
+        List<ProductPictureResponseDTO> productPictures
 ) { }
