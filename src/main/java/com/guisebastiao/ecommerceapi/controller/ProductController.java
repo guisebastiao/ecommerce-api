@@ -1,6 +1,7 @@
 package com.guisebastiao.ecommerceapi.controller;
 
 import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
+import com.guisebastiao.ecommerceapi.dto.request.ApplyDiscountRequestDTO;
 import com.guisebastiao.ecommerceapi.dto.request.ProductRequestDTO;
 import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
 import com.guisebastiao.ecommerceapi.service.ProductService;
@@ -20,6 +21,12 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<DefaultDTO<Void>> createProduct(@RequestBody @Valid ProductRequestDTO productRequestDTO) {
         DefaultDTO<Void> response = this.productService.createProduct(productRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/apply-discount")
+    public ResponseEntity<DefaultDTO<Void>> applyDiscount(@RequestBody @Valid ApplyDiscountRequestDTO applyDiscountRequestDTO) {
+        DefaultDTO<Void> response = this.productService.applyDiscount(applyDiscountRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

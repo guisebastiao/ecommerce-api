@@ -36,4 +36,8 @@ public class Product extends Auditable {
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 }

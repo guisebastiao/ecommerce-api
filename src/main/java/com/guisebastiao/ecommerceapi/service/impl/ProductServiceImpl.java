@@ -1,13 +1,17 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.Category;
+import com.guisebastiao.ecommerceapi.domain.Discount;
 import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
+import com.guisebastiao.ecommerceapi.dto.request.ApplyDiscountRequestDTO;
 import com.guisebastiao.ecommerceapi.dto.request.ProductRequestDTO;
 import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
+import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.mapper.ProductMapper;
 import com.guisebastiao.ecommerceapi.repository.CategoryRepository;
+import com.guisebastiao.ecommerceapi.repository.DiscountRepository;
 import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.service.ProductService;
 import com.guisebastiao.ecommerceapi.util.LongConverter;
@@ -25,6 +29,9 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private DiscountRepository discountRepository;
+
+    @Autowired
     private ProductMapper productMapper;
 
     @Override
@@ -36,6 +43,22 @@ public class ProductServiceImpl implements ProductService {
 
         this.productRepository.save(product);
         return new DefaultDTO<Void>(Boolean.TRUE, "Produto criado com sucesso", null);
+    }
+
+    @Override
+    public DefaultDTO<Void> applyDiscount(ApplyDiscountRequestDTO applyDiscountRequestDTO) {
+        Discount discount = this.findDiscount(applyDiscountRequestDTO.discountId());
+        Product product = this.findProduct(applyDiscountRequestDTO.productId());
+
+        if (product.getDiscount() != null) {
+            throw new ConflictEntityException("Esse produto já está com desconto");
+        }
+
+        product.setDiscount(discount);
+
+        productRepository.save(product);
+
+        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto aplicado com sucesso", null);
     }
 
     @Override
@@ -77,5 +100,10 @@ public class ProductServiceImpl implements ProductService {
     private Category findCategory(String categoryId) {
         return this.categoryRepository.findById(LongConverter.toLong(categoryId))
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+    }
+
+    private Discount findDiscount(String discountId) {
+        return this.discountRepository.findById(UUIDConverter.toUUID(discountId))
+                .orElseThrow(() -> new EntityNotFoundException("Disconto não encontrado"));
     }
 }
