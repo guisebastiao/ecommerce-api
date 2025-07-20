@@ -11,4 +11,5 @@ public interface ProductService {
     DefaultDTO<ProductResponseDTO> findProductById(String productId);
     DefaultDTO<Void> updateProduct(String productId, ProductRequestDTO productRequestDTO);
     DefaultDTO<Void> deleteProduct(String productId);
+    DefaultDTO<Void> removeDiscount(String productId);
 }

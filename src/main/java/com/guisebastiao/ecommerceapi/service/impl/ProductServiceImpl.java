@@ -92,6 +92,16 @@ public class ProductServiceImpl implements ProductService {
         return new DefaultDTO<Void>(Boolean.TRUE, "Produto excluido com sucesso", null);
     }
 
+    @Override
+    public DefaultDTO<Void> removeDiscount(String productId) {
+        Product product = this.findProduct(productId);
+
+        product.setDiscount(null);
+        this.productRepository.save(product);
+
+        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto removido com sucesso", null);
+    }
+
     private Product findProduct(String productId) {
         return this.productRepository.findById(UUIDConverter.toUUID(productId))
                 .orElseThrow(() -> new EntityNotFoundException("Produto não foi encontrado"));

@@ -17,5 +17,6 @@ public record ProductResponseDTO(
         Boolean haveDiscount,
         CategoryResponseDTO category,
         DiscountRequestDTO discount,
+        Double reviewRating,
         List<ProductPictureResponseDTO> productPictures
 ) { }

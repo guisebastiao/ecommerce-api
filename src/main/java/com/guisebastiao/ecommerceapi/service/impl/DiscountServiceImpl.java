@@ -59,9 +59,7 @@ public class DiscountServiceImpl implements DiscountService {
 
         discount.setName(discountRequestDTO.name());
         discount.setPercent(discountRequestDTO.percent());
-        discount.setStartDate(discountRequestDTO.startDate());
         discount.setEndDate(discountRequestDTO.endDate());
-        discount.setActive(discountRequestDTO.active());
 
         this.discountRepository.save(discount);
 

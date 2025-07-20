@@ -25,14 +25,8 @@ public class Discount extends Auditable {
     @Column(nullable = false)
     private Double percent;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
-
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
-
-    @Column(nullable = false)
-    private Boolean active;
 
     @OneToMany(mappedBy = "discount")
     private List<Product> products;

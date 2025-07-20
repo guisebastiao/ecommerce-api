@@ -1,6 +1,7 @@
 package com.guisebastiao.ecommerceapi.mapper.resolver;
 
 import com.guisebastiao.ecommerceapi.domain.Product;
+import com.guisebastiao.ecommerceapi.domain.Review;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
@@ -29,5 +30,14 @@ public class ProductResolver {
     @Named("resolveHaveDiscount")
     public Boolean resolveHaveDiscount(Product product) {
         return product.getDiscount() != null;
+    }
+
+    @Named("resolveReviewRating")
+    public Double resolveReviewRating(Product product) {
+        return product.getReviews()
+                .stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
     }
 }

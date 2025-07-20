@@ -37,14 +37,20 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> createProduct(@PathVariable String productId, @RequestBody @Valid ProductRequestDTO productRequestDTO) {
+    public ResponseEntity<DefaultDTO<Void>> updateProduct(@PathVariable String productId, @RequestBody @Valid ProductRequestDTO productRequestDTO) {
         DefaultDTO<Void> response = this.productService.updateProduct(productId, productRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> createProduct(@PathVariable String productId) {
+    public ResponseEntity<DefaultDTO<Void>> deleteProduct(@PathVariable String productId) {
         DefaultDTO<Void> response = this.productService.deleteProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping("/{productId}/remove-discount")
+    public ResponseEntity<DefaultDTO<Void>> removeDiscount(@PathVariable String productId) {
+        DefaultDTO<Void> response = this.productService.removeDiscount(productId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

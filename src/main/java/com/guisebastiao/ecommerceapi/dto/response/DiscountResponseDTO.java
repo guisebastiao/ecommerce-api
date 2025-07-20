@@ -7,7 +7,5 @@ public record DiscountResponseDTO(
         UUID id,
         String name,
         Double percent,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
-        Boolean active
+        LocalDateTime endDate
 ) { }

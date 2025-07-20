@@ -15,12 +15,6 @@ public record DiscountRequestDTO(
         Double percent,
 
         @Future
-        @NotNull(message = "Informe o início da promoção")
-        LocalDateTime startDate,
-
-        @Future
         @NotNull(message = "Informe o fim da promoção")
-        LocalDateTime endDate,
-
-                Boolean active
+        LocalDateTime endDate
 ) { }
