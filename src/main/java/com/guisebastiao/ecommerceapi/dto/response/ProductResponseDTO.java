@@ -15,6 +15,7 @@ public record ProductResponseDTO(
         Integer stock,
         Boolean available,
         Boolean haveDiscount,
+        Boolean alreadyReviewed,
         CategoryResponseDTO category,
         DiscountRequestDTO discount,
         Double reviewRating,

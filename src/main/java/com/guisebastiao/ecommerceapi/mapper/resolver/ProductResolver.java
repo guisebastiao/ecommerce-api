@@ -1,8 +1,13 @@
 package com.guisebastiao.ecommerceapi.mapper.resolver;
 
+import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.domain.Review;
+import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -10,6 +15,9 @@ import java.math.RoundingMode;
 
 @Component
 public class ProductResolver {
+
+    @Autowired
+    private ClientAuthProvider clientAuthProvider;
 
     @Named("resolveDiscount")
     public BigDecimal resolveDiscount(Product product) {
@@ -39,5 +47,17 @@ public class ProductResolver {
                 .mapToDouble(Review::getRating)
                 .average()
                 .orElse(0.0);
+    }
+
+    @Named("resolveAlreadyReviewed")
+    public Boolean resolveAlreadyReviewed(Product product) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) return false;
+
+        Client client = this.clientAuthProvider.getClientAuthenticated();
+
+        return product.getReviews()
+                .stream()
+                .anyMatch(e -> e.getClient().getId().equals(client.getId()));
     }
 }
