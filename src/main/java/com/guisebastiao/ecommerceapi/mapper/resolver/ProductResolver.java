@@ -60,4 +60,16 @@ public class ProductResolver {
                 .stream()
                 .anyMatch(e -> e.getClient().getId().equals(client.getId()));
     }
+
+    @Named("resolveIsFavorite")
+    public Boolean resolveIsFavorite(Product product) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) return false;
+
+        Client client = this.clientAuthProvider.getClientAuthenticated();
+
+        return product.getClientFavorites()
+                .stream()
+                .anyMatch(e -> e.getClient().getId().equals(client.getId()));
+    }
 }

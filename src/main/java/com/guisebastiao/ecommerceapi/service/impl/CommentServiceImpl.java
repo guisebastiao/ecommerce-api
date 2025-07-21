@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public DefaultDTO<PageResponseDTO<CommentResponseDTO>> findAllComments(String productId, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
 
         Page<Comment> resultPage = this.commentRepository.findAll(pageable);
 

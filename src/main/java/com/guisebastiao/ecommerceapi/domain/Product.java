@@ -43,6 +43,9 @@ public class Product extends Auditable {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorite> clientFavorites;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

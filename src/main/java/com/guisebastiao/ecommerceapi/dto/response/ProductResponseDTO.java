@@ -16,6 +16,7 @@ public record ProductResponseDTO(
         Boolean available,
         Boolean haveDiscount,
         Boolean alreadyReviewed,
+        Boolean isFavorite,
         CategoryResponseDTO category,
         DiscountRequestDTO discount,
         Double reviewRating,
