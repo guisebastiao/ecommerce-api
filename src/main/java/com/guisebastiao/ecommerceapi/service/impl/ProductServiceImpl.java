@@ -16,6 +16,7 @@ import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.service.ProductService;
 import com.guisebastiao.ecommerceapi.util.LongConverter;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductMapper productMapper;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> createProduct(ProductRequestDTO productRequestDTO) {
         Category category = this.findCategory(productRequestDTO.categoryId());
 
@@ -46,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> applyDiscount(ApplyDiscountRequestDTO applyDiscountRequestDTO) {
         Discount discount = this.findDiscount(applyDiscountRequestDTO.discountId());
         Product product = this.findProduct(applyDiscountRequestDTO.productId());
@@ -69,6 +72,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> updateProduct(String productId, ProductRequestDTO productRequestDTO) {
         Category category = this.findCategory(productRequestDTO.categoryId());
 
@@ -86,6 +90,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteProduct(String productId) {
         Product product = this.findProduct(productId);
         this.productRepository.delete(product);
@@ -93,6 +98,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> removeDiscount(String productId) {
         Product product = this.findProduct(productId);
 

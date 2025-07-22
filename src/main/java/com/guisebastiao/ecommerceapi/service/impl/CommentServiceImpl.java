@@ -16,6 +16,7 @@ import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
 import com.guisebastiao.ecommerceapi.service.CommentService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,7 @@ public class CommentServiceImpl implements CommentService {
     private CommentMapper commentMapper;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> createComment(String productId, CommentRequestDTO commentRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Product product = this.findProduct(productId);
@@ -70,6 +72,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> updateComment(String commentId, CommentRequestDTO commentRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Comment comment = this.findComment(commentId);
@@ -86,6 +89,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteComment(String commentId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Comment comment = this.findComment(commentId);

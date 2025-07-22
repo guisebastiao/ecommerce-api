@@ -18,6 +18,7 @@ import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
 import com.guisebastiao.ecommerceapi.service.FavoriteService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +47,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     private ClientAuthProvider clientAuthProvider;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> createFavorite(FavoriteRequestDTO favoriteRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Product product = this.findProduct(favoriteRequestDTO.productId());
@@ -83,6 +85,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteFavorite(String favoriteId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Favorite favorite = this.findFavorite(favoriteId);

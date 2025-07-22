@@ -11,6 +11,7 @@ import com.guisebastiao.ecommerceapi.mapper.DiscountMapper;
 import com.guisebastiao.ecommerceapi.repository.DiscountRepository;
 import com.guisebastiao.ecommerceapi.service.DiscountService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +55,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> updateDiscount(String discountId, DiscountRequestDTO discountRequestDTO) {
         Discount discount = this.findById(discountId);
 
@@ -67,6 +69,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteDiscount(String discountId) {
         Discount discount = this.findById(discountId);
 

@@ -14,6 +14,7 @@ import com.guisebastiao.ecommerceapi.util.CodeGenerator;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ public class ProductPictureServiceImpl implements ProductPictureService {
     private CodeGenerator codeGenerator;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> uploadProductPicture(String productId, ProductPictureRequestDTO productPictureRequestDTO) {
         Product product = this.findProduct(productId);
 
@@ -80,6 +82,7 @@ public class ProductPictureServiceImpl implements ProductPictureService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteProductPicture(String productPictureId) {
         ProductPicture productPicture = this.findProductPicture(productPictureId);
 

@@ -11,6 +11,7 @@ import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
 import com.guisebastiao.ecommerceapi.service.ClientService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> updateAccount(UpdateAccountRequestDTO updateAccountRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
@@ -55,6 +57,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> updatePassword(UpdatePasswordRequestDTO updatePasswordRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
@@ -65,6 +68,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteAccount() {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         this.clientRepository.delete(client);

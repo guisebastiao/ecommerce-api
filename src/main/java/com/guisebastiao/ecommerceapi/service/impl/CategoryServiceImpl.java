@@ -12,6 +12,7 @@ import com.guisebastiao.ecommerceapi.mapper.CategoryMapper;
 import com.guisebastiao.ecommerceapi.repository.CategoryRepository;
 import com.guisebastiao.ecommerceapi.service.CategoryService;
 import com.guisebastiao.ecommerceapi.util.LongConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryMapper categoryMapper;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> createCategory(CategoryRequestDTO categoryRequestDTO) {
         boolean existsCategory = this.categoryRepository.findByName(categoryRequestDTO.name()).isPresent();
 
@@ -62,6 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> updateCategory(String categoryId, CategoryRequestDTO categoryRequestDTO) {
         Category category = this.findById(categoryId);
         category.setName(categoryRequestDTO.name().toUpperCase());
@@ -72,6 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteCategory(String categoryId) {
         Category category = this.findById(categoryId);
 

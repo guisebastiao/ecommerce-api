@@ -62,6 +62,9 @@ public class Client extends Auditable implements UserDetails {
     private LoginPending loginPending;
 
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private Cart cart;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private RecoverPassword recoverPassword;
 
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)

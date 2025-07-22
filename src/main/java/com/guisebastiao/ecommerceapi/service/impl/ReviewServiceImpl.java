@@ -17,6 +17,7 @@ import com.guisebastiao.ecommerceapi.repository.ReviewRepository;
 import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
 import com.guisebastiao.ecommerceapi.service.ReviewService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,7 @@ public class ReviewServiceImpl implements ReviewService {
     private ReviewMapper reviewMapper;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> createReview(String productId, ReviewRequestDTO reviewRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Product product = this.findProduct(productId);
@@ -76,6 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteReview(String reviewId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Review review = this.findReview(reviewId);

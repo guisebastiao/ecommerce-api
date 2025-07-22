@@ -29,7 +29,7 @@ public class Product extends Auditable {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private Integer stock = 0;
+    private Integer stock;
 
     @Column(nullable = false)
     private Boolean available = true;
@@ -42,6 +42,9 @@ public class Product extends Auditable {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Comment> comments;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<CartItem> cartItems;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorite> clientFavorites;

@@ -19,6 +19,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +47,7 @@ public class ClientPictureServiceImpl implements ClientPictureService {
     private ClientAuthProvider clientAuthProvider;
 
     @Override
+    @Transactional
     public DefaultDTO<Void> createClientPicture(ClientPictureRequestDTO clientPictureRequestDTO) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
@@ -122,6 +124,7 @@ public class ClientPictureServiceImpl implements ClientPictureService {
     }
 
     @Override
+    @Transactional
     public DefaultDTO<Void> deleteClientPicture() {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
