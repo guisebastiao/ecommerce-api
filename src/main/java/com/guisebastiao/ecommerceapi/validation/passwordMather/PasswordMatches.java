@@ -6,7 +6,7 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = PasswordMatchesValidator.class)
+@Constraint(validatedBy = {PasswordMatchesResetPasswordValidator.class, PasswordMatchesRegisterValidator.class})
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PasswordMatches {

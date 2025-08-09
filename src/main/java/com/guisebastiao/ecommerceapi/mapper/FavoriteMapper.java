@@ -1,10 +1,11 @@
 package com.guisebastiao.ecommerceapi.mapper;
 
 import com.guisebastiao.ecommerceapi.domain.Favorite;
-import com.guisebastiao.ecommerceapi.dto.request.FavoriteRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.request.favorite.FavoriteRequest;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {ClientMapper.class})
 public interface FavoriteMapper {
-    Favorite toEntity(FavoriteRequestDTO favoriteRequestDTO);
+    Favorite toEntity(FavoriteRequest favoriteRequestDTO);
 }

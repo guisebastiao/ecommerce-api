@@ -1,10 +1,10 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CreateResetPasswordRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ResetPasswordRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.recoverPassword.CreateResetPasswordRequest;
+import com.guisebastiao.ecommerceapi.dto.request.recoverPassword.ResetPasswordRequest;
 
 public interface RecoverPasswordService {
-    DefaultDTO<Void> createRecoverPassword(CreateResetPasswordRequestDTO createResetPasswordRequestDTO);
-    DefaultDTO<Void> resetPassword(String code, ResetPasswordRequestDTO resetPasswordRequestDTO);
+    DefaultResponse<Void> createRecoverPassword(CreateResetPasswordRequest createResetPasswordRequest);
+    DefaultResponse<Void> resetPassword(String code, ResetPasswordRequest resetPasswordRequest);
 }

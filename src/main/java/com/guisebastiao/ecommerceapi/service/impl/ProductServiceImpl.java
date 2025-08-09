@@ -3,10 +3,10 @@ package com.guisebastiao.ecommerceapi.service.impl;
 import com.guisebastiao.ecommerceapi.domain.Category;
 import com.guisebastiao.ecommerceapi.domain.Discount;
 import com.guisebastiao.ecommerceapi.domain.Product;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ApplyDiscountRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ProductRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.discount.ApplyDiscountRequest;
+import com.guisebastiao.ecommerceapi.dto.request.product.ProductRequest;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.mapper.ProductMapper;
@@ -37,21 +37,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createProduct(ProductRequestDTO productRequestDTO) {
-        Category category = this.findCategory(productRequestDTO.categoryId());
+    public DefaultResponse<Void> createProduct(ProductRequest productRequest) {
+        Category category = this.findCategory(productRequest.categoryId());
 
-        Product product = this.productMapper.toEntity(productRequestDTO);
+        Product product = this.productMapper.toEntity(productRequest);
         product.setCategory(category);
 
         this.productRepository.save(product);
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto criado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Produto criado com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> applyDiscount(ApplyDiscountRequestDTO applyDiscountRequestDTO) {
-        Discount discount = this.findDiscount(applyDiscountRequestDTO.discountId());
-        Product product = this.findProduct(applyDiscountRequestDTO.productId());
+    public DefaultResponse<Void> applyDiscount(ApplyDiscountRequest applyDiscountRequest) {
+        Discount discount = this.findDiscount(applyDiscountRequest.discountId());
+        Product product = this.findProduct(applyDiscountRequest.productId());
 
         if (product.getDiscount() != null) {
             throw new ConflictEntityException("Esse produto já está com desconto");
@@ -61,51 +61,51 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.save(product);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto aplicado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Desconto aplicado com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<ProductResponseDTO> findProductById(String productId) {
+    public DefaultResponse<ProductResponse> findProductById(String productId) {
         Product product = this.findProduct(productId);
-        ProductResponseDTO productResponseDTO = this.productMapper.toDto(product);
-        return new DefaultDTO<ProductResponseDTO>(Boolean.TRUE, "Produto encontrado com sucesso", productResponseDTO);
+        ProductResponse productResponse = this.productMapper.toDTO(product);
+        return new DefaultResponse<ProductResponse>(true, "Produto encontrado com sucesso", productResponse);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> updateProduct(String productId, ProductRequestDTO productRequestDTO) {
-        Category category = this.findCategory(productRequestDTO.categoryId());
+    public DefaultResponse<Void> updateProduct(String productId, ProductRequest productRequest) {
+        Category category = this.findCategory(productRequest.categoryId());
 
         Product product = this.findProduct(productId);
 
-        product.setName(productRequestDTO.name());
-        product.setDescription(productRequestDTO.description());
-        product.setPrice(productRequestDTO.price());
-        product.setStock(productRequestDTO.stock());
+        product.setName(productRequest.name());
+        product.setDescription(productRequest.description());
+        product.setPrice(productRequest.price());
+        product.setStock(productRequest.stock());
         product.setCategory(category);
 
         this.productRepository.save(product);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto atualizado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Produto atualizado com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteProduct(String productId) {
+    public DefaultResponse<Void> deleteProduct(String productId) {
         Product product = this.findProduct(productId);
         this.productRepository.delete(product);
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto excluido com sucesso", null);
+        return new DefaultResponse<Void>(true, "Produto excluido com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> removeDiscount(String productId) {
+    public DefaultResponse<Void> removeDiscount(String productId) {
         Product product = this.findProduct(productId);
 
         product.setDiscount(null);
         this.productRepository.save(product);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto removido com sucesso", null);
+        return new DefaultResponse<Void>(true, "Desconto removido com sucesso", null);
     }
 
     private Product findProduct(String productId) {

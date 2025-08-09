@@ -2,16 +2,16 @@ package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.Address;
 import com.guisebastiao.ecommerceapi.domain.Client;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.AddressRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.AddressResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.address.AddressRequest;
+import com.guisebastiao.ecommerceapi.dto.response.address.AddressResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.UnauthorizedException;
 import com.guisebastiao.ecommerceapi.mapper.AddressMapper;
 import com.guisebastiao.ecommerceapi.repository.AddressRepository;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.AddressService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
@@ -30,45 +30,45 @@ public class AddressServiceImpl implements AddressService {
     private AddressRepository addressRepository;
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider authProvider;
 
     @Autowired
     private AddressMapper addressMapper;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createAddress(AddressRequestDTO addressRequestDTO) {
-        Client client = this.clientAuthProvider.getClientAuthenticated();
+    public DefaultResponse<Void> createAddress(AddressRequest addressRequest) {
+        Client client = this.authProvider.getClientAuthenticated();
 
-        Address address = this.addressMapper.toEntity(addressRequestDTO);
+        Address address = this.addressMapper.toEntity(addressRequest);
         address.setClient(client);
 
         this.addressRepository.save(address);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Seu endereço foi criado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Seu endereço foi criado com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<AddressResponseDTO>> findAllAddresses(int offset, int limit) {
-        Client client = this.clientAuthProvider.getClientAuthenticated();
+    public DefaultResponse<PageResponse<AddressResponse>> findAllAddresses(int offset, int limit) {
+        Client client = this.authProvider.getClientAuthenticated();
 
         Pageable pageable = PageRequest.of(offset, limit);
 
         Page<Address> resultPage = this.addressRepository.findAllByClientId(client.getId(), pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<AddressResponseDTO> dataResponse = resultPage.getContent().stream().map(this.addressMapper::toDto).toList();
+        List<AddressResponse> dataResponse = resultPage.getContent().stream().map(this.addressMapper::toDto).toList();
 
-        PageResponseDTO<AddressResponseDTO> data = new PageResponseDTO<AddressResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<AddressResponse> data = new PageResponse<AddressResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<AddressResponseDTO>>(Boolean.TRUE, "Endereços retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<AddressResponse>>(true, "Endereços retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> updateAddress(String addressId, AddressRequestDTO addressRequestDTO) {
-        Client client = this.clientAuthProvider.getClientAuthenticated();
+    public DefaultResponse<Void> updateAddress(String addressId, AddressRequest addressRequest) {
+        Client client = this.authProvider.getClientAuthenticated();
 
         Address address = this.findAddressById(addressId);
 
@@ -76,24 +76,24 @@ public class AddressServiceImpl implements AddressService {
             throw new UnauthorizedException("Você não tem permissão para editar esse endereço");
         }
 
-        address.setStreet(addressRequestDTO.street());
-        address.setNumber(addressRequestDTO.number());
-        address.setComplement(addressRequestDTO.complement());
-        address.setNeighborhood(addressRequestDTO.neighborhood());
-        address.setCity(addressRequestDTO.city());
-        address.setState(addressRequestDTO.state());
-        address.setZip(addressRequestDTO.zip());
-        address.setCountry(addressRequestDTO.country());
+        address.setStreet(addressRequest.street());
+        address.setNumber(addressRequest.number());
+        address.setComplement(addressRequest.complement());
+        address.setNeighborhood(addressRequest.neighborhood());
+        address.setCity(addressRequest.city());
+        address.setState(addressRequest.state());
+        address.setZip(addressRequest.zip());
+        address.setCountry(addressRequest.country());
 
         this.addressRepository.save(address);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Seu endereço foi atualizado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Seu endereço foi atualizado com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteAddress(String addressId) {
-        Client client = this.clientAuthProvider.getClientAuthenticated();
+    public DefaultResponse<Void> deleteAddress(String addressId) {
+        Client client = this.authProvider.getClientAuthenticated();
 
         Address address = this.findAddressById(addressId);
 
@@ -103,7 +103,7 @@ public class AddressServiceImpl implements AddressService {
 
         this.addressRepository.delete(address);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Seu endereço foi excluido com sucesso", null);
+        return new DefaultResponse<Void>(true, "Seu endereço foi excluido com sucesso", null);
     }
 
     private Address findAddressById(String addressId) {

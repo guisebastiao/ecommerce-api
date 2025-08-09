@@ -3,7 +3,7 @@ package com.guisebastiao.ecommerceapi.mapper.resolver;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.domain.Review;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -17,7 +17,7 @@ import java.math.RoundingMode;
 public class ProductResolver {
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider clientAuthProvider;
 
     @Named("resolveDiscount")
     public BigDecimal resolveDiscount(Product product) {

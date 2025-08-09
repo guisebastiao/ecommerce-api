@@ -1,9 +1,10 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
+import com.guisebastiao.ecommerceapi.config.MinioConfig;
 import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.domain.ProductPicture;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ProductPictureRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.productPicture.ProductPictureRequest;
 import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.FailedUploadFileException;
@@ -22,8 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.guisebastiao.ecommerceapi.config.MinioConfig.BUCKET_CLIENT_PICTURES;
-
 @Service
 public class ProductPictureServiceImpl implements ProductPictureService {
 
@@ -37,18 +36,21 @@ public class ProductPictureServiceImpl implements ProductPictureService {
     private MinioClient minioClient;
 
     @Autowired
+    private MinioConfig minioConfig;
+
+    @Autowired
     private CodeGenerator codeGenerator;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> uploadProductPicture(String productId, ProductPictureRequestDTO productPictureRequestDTO) {
+    public DefaultResponse<Void> uploadProductPicture(String productId, ProductPictureRequest productPictureRequest) {
         Product product = this.findProduct(productId);
 
         if(product.getProductPictures().size() > 20) {
             throw new BadRequestException("Um produto pode ter no máximo 20 imagens");
         }
 
-        List<MultipartFile> files = productPictureRequestDTO.files();
+        List<MultipartFile> files = productPictureRequest.files();
 
         List<ProductPicture> productPictures = files.stream().map(file -> {
             String objectId = this.codeGenerator.generateToken();
@@ -59,14 +61,14 @@ public class ProductPictureServiceImpl implements ProductPictureService {
 
                 this.minioClient.putObject(
                         PutObjectArgs.builder()
-                                .bucket(BUCKET_CLIENT_PICTURES)
-                                .object(objectId)
+                                .bucket(minioConfig.getMinioBucket())
+                                .object(minioConfig.getProductPicturesFolder() + objectId)
                                 .stream(inputStream, inputStream.available(), -1)
                                 .contentType(contentType)
                                 .build()
                 );
             } catch (Exception e) {
-                throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil");
+                throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil", e);
             }
 
             ProductPicture productPicture = new ProductPicture();
@@ -78,12 +80,12 @@ public class ProductPictureServiceImpl implements ProductPictureService {
 
         this.productPictureRepository.saveAll(productPictures);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Imagens do produto salvas com sucesso", null);
+        return new DefaultResponse<Void>(true, "Imagens do produto salvas com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteProductPicture(String productPictureId) {
+    public DefaultResponse<Void> deleteProductPicture(String productPictureId) {
         ProductPicture productPicture = this.findProductPicture(productPictureId);
 
         if(productPicture.getProduct().getProductPictures().size() <= 1) {
@@ -92,7 +94,7 @@ public class ProductPictureServiceImpl implements ProductPictureService {
 
         this.productPictureRepository.delete(productPicture);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Imagem do produto excluida com sucesso", null);
+        return new DefaultResponse<Void>(true, "Imagem do produto excluida com sucesso", null);
     }
 
     private ProductPicture findProductPicture(String productPictureId) {

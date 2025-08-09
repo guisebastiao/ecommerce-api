@@ -1,12 +1,15 @@
 package com.guisebastiao.ecommerceapi.mapper;
 
 import com.guisebastiao.ecommerceapi.domain.Address;
-import com.guisebastiao.ecommerceapi.dto.request.AddressRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.AddressResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.request.address.AddressRequest;
+import com.guisebastiao.ecommerceapi.dto.response.address.AddressResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AddressMapper {
-    Address toEntity(AddressRequestDTO addressRequestDTO);
-    AddressResponseDTO toDto(Address address);
+    Address toEntity(AddressRequest addressRequestDTO);
+
+    @Mapping(source = "id", target = "addressId")
+    AddressResponse toDto(Address address);
 }

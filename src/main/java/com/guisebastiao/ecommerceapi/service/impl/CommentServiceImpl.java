@@ -3,17 +3,17 @@ package com.guisebastiao.ecommerceapi.service.impl;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Comment;
 import com.guisebastiao.ecommerceapi.domain.Product;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CommentRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CommentResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.comment.CommentRequest;
+import com.guisebastiao.ecommerceapi.dto.response.comment.CommentResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.UnauthorizedException;
 import com.guisebastiao.ecommerceapi.mapper.CommentMapper;
 import com.guisebastiao.ecommerceapi.repository.CommentRepository;
 import com.guisebastiao.ecommerceapi.repository.ProductRepository;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.CommentService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
@@ -36,44 +36,44 @@ public class CommentServiceImpl implements CommentService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider clientAuthProvider;
 
     @Autowired
     private CommentMapper commentMapper;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createComment(String productId, CommentRequestDTO commentRequestDTO) {
+    public DefaultResponse<Void> createComment(String productId, CommentRequest commentRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Product product = this.findProduct(productId);
 
-        Comment comment = this.commentMapper.toEntity(commentRequestDTO);
+        Comment comment = this.commentMapper.toEntity(commentRequest);
         comment.setProduct(product);
         comment.setClient(client);
 
         this.commentRepository.save(comment);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Comentário criado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Comentário criado com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<CommentResponseDTO>> findAllComments(String productId, int offset, int limit) {
+    public DefaultResponse<PageResponse<CommentResponse>> findAllComments(String productId, int offset, int limit) {
         Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
 
         Page<Comment> resultPage = this.commentRepository.findAll(pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<CommentResponseDTO> dataResponse = resultPage.getContent().stream().map(this.commentMapper::toDto).toList();
+        List<CommentResponse> dataResponse = resultPage.getContent().stream().map(this.commentMapper::toDTO).toList();
 
-        PageResponseDTO<CommentResponseDTO> data = new PageResponseDTO<CommentResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<CommentResponse> data = new PageResponse<CommentResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<CommentResponseDTO>>(Boolean.TRUE, "Comentários retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<CommentResponse>>(true, "Comentários retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> updateComment(String commentId, CommentRequestDTO commentRequestDTO) {
+    public DefaultResponse<Void> updateComment(String commentId, CommentRequest commentRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Comment comment = this.findComment(commentId);
 
@@ -81,16 +81,16 @@ public class CommentServiceImpl implements CommentService {
             throw new UnauthorizedException("Você não tem permissão para editar esse comentário");
         }
 
-        comment.setContent(commentRequestDTO.content());
+        comment.setContent(commentRequest.content());
 
         this.commentRepository.save(comment);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Comentário atualizado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Comentário atualizado com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteComment(String commentId) {
+    public DefaultResponse<Void> deleteComment(String commentId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Comment comment = this.findComment(commentId);
 
@@ -100,7 +100,7 @@ public class CommentServiceImpl implements CommentService {
 
         this.commentRepository.delete(comment);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Comentário excluido com sucesso", null);
+        return new DefaultResponse<Void>(true, "Comentário excluido com sucesso", null);
     }
 
     private Comment findComment(String commentId) {
@@ -110,6 +110,6 @@ public class CommentServiceImpl implements CommentService {
 
     private Product findProduct(String productId) {
         return this.productRepository.findById(UUIDConverter.toUUID(productId))
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado&*"));
+            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
     }
 }

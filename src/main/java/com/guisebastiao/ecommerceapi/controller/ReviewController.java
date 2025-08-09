@@ -1,10 +1,10 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ReviewRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ReviewResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
+import com.guisebastiao.ecommerceapi.dto.request.review.ReviewRequest;
+import com.guisebastiao.ecommerceapi.dto.response.review.ReviewResponse;
 import com.guisebastiao.ecommerceapi.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +20,20 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> createReview(@PathVariable String productId, @RequestBody @Valid ReviewRequestDTO reviewRequestDTO) {
-        DefaultDTO<Void> response = this.reviewService.createReview(productId, reviewRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createReview(@PathVariable String productId, @RequestBody @Valid ReviewRequest reviewRequest) {
+        DefaultResponse<Void> response = this.reviewService.createReview(productId, reviewRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<PageResponseDTO<ReviewResponseDTO>>> findAllReviews(@PathVariable String productId, @Valid PaginationFilterDTO pagination) {
-        DefaultDTO<PageResponseDTO<ReviewResponseDTO>> response = this.reviewService.findAllReviews(productId, pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<PageResponse<ReviewResponse>>> findAllReviews(@PathVariable String productId, @Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<ReviewResponse>> response = this.reviewService.findAllReviews(productId, pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<DefaultDTO<Void>> deleteReview(@PathVariable String reviewId) {
-        DefaultDTO<Void> response = this.reviewService.deleteReview(reviewId);
+    public ResponseEntity<DefaultResponse<Void>> deleteReview(@PathVariable String reviewId) {
+        DefaultResponse<Void> response = this.reviewService.deleteReview(reviewId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -1,13 +1,13 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CartItemRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CartItemResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
+import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 
 public interface CartService {
-    DefaultDTO<Void> addProductToCart(CartItemRequestDTO cartRequestDTO);
-    DefaultDTO<PageResponseDTO<CartItemResponseDTO>> findAllCartItems(int offset, int limit);
-    DefaultDTO<Void> removeProductFromCart(String cartItemId);
-    DefaultDTO<Void> removeAllProductsFromCart(String cartItemId);
+    DefaultResponse<Void> addProductToCart(CartItemRequest cartRequest);
+    DefaultResponse<PageResponse<CartItemResponse>> findAllCartItems(int offset, int limit);
+    DefaultResponse<Void> removeProductFromCart(String cartItemId);
+    DefaultResponse<Void> removeAllProductsFromCart(String cartItemId);
 }

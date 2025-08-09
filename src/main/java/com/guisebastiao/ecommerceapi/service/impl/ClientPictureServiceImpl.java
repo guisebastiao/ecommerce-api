@@ -1,16 +1,16 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
+import com.guisebastiao.ecommerceapi.config.MinioConfig;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.ClientPicture;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ClientPictureRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ClientPictureResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.clientPicture.ClientPictureRequest;
+import com.guisebastiao.ecommerceapi.dto.response.clientPicture.ClientPictureResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.FailedUploadFileException;
-import com.guisebastiao.ecommerceapi.mapper.ClientPictureMapper;
 import com.guisebastiao.ecommerceapi.repository.ClientPictureRepository;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.ClientPictureService;
 import com.guisebastiao.ecommerceapi.util.CodeGenerator;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
@@ -26,8 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
-import static com.guisebastiao.ecommerceapi.config.MinioConfig.BUCKET_CLIENT_PICTURES;
-
 @Service
 public class ClientPictureServiceImpl implements ClientPictureService {
 
@@ -41,33 +39,36 @@ public class ClientPictureServiceImpl implements ClientPictureService {
     private MinioClient minioClient;
 
     @Autowired
+    private MinioConfig minioConfig;
+
+    @Autowired
     private CodeGenerator codeGenerator;
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider clientAuthProvider;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createClientPicture(ClientPictureRequestDTO clientPictureRequestDTO) {
+    public DefaultResponse<Void> createClientPicture(ClientPictureRequest clientPictureRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
         if(client.getClientPicture() != null) {
             try {
                 this.minioClient.removeObject(
                         RemoveObjectArgs.builder()
-                                .bucket(BUCKET_CLIENT_PICTURES)
+                                .bucket(minioConfig.getMinioBucket())
                                 .object(client.getClientPicture().getObjectId())
                                 .build()
                 );
             } catch (Exception e) {
-                throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil");
+                throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil", e);
             }
 
             client.setClientPicture(null);
             this.clientRepository.save(client);
         }
 
-        MultipartFile file = clientPictureRequestDTO.file();
+        MultipartFile file = clientPictureRequest.file();
         String objectId = this.codeGenerator.generateToken();
         String contentType = file.getContentType();
 
@@ -82,21 +83,21 @@ public class ClientPictureServiceImpl implements ClientPictureService {
 
             this.minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(BUCKET_CLIENT_PICTURES)
-                            .object(objectId)
+                            .bucket(minioConfig.getMinioBucket())
+                            .object(minioConfig.getClientPicturesFolder() + objectId)
                             .stream(inputStream, inputStream.available(), -1)
                             .contentType(contentType)
                             .build()
             );
         } catch (Exception e) {
-            throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil");
+            throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil", e);
         }
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Imagem de perfil foi salva com sucesso", null);
+        return new DefaultResponse<Void>(true, "Imagem de perfil foi salva com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<ClientPictureResponseDTO> getClientPicture(String clientId) {
+    public DefaultResponse<ClientPictureResponse> getClientPicture(String clientId) {
         Client client = this.clientRepository.findById(UUIDConverter.toUUID(clientId))
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não foi encontrado"));
 
@@ -107,43 +108,43 @@ public class ClientPictureServiceImpl implements ClientPictureService {
                 String presignedUrl = minioClient.getPresignedObjectUrl(
                         GetPresignedObjectUrlArgs.builder()
                                 .method(Method.GET)
-                                .bucket(BUCKET_CLIENT_PICTURES)
-                                .object(picture.getObjectId())
+                                .bucket(minioConfig.getMinioBucket())
+                                .object(minioConfig.getClientPicturesFolder() + picture.getObjectId())
                                 .expiry(604800)
                                 .build()
                 );
 
-                ClientPictureResponseDTO data = new ClientPictureResponseDTO(picture.getId(), picture.getObjectId(), presignedUrl);
-                return new DefaultDTO<ClientPictureResponseDTO>(Boolean.TRUE, "Imagem perfil encontrada com sucesso", data);
+                ClientPictureResponse data = new ClientPictureResponse(picture.getId(), picture.getObjectId(), presignedUrl);
+                return new DefaultResponse<ClientPictureResponse>(true, "Imagem perfil encontrada com sucesso", data);
             }
 
-            return new DefaultDTO<ClientPictureResponseDTO>(Boolean.TRUE, "O cliente não possuí foto de perfil", null);
+            return new DefaultResponse<ClientPictureResponse>(true, "O cliente não possuí foto de perfil", null);
         } catch (Exception e) {
-            throw new FailedUploadFileException("Ocorreu um erro inesperado ao buscar a imagem de perfil");
+            throw new FailedUploadFileException("Ocorreu um erro inesperado ao buscar a imagem de perfil", e);
         }
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteClientPicture() {
+    public DefaultResponse<Void> deleteClientPicture() {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
         if(client.getClientPicture() != null) {
             try {
                 this.minioClient.removeObject(
                         RemoveObjectArgs.builder()
-                                .bucket(BUCKET_CLIENT_PICTURES)
-                                .object(client.getClientPicture().getObjectId())
+                                .bucket(minioConfig.getMinioBucket())
+                                .object(minioConfig.getClientPicturesFolder() + client.getClientPicture().getObjectId())
                                 .build()
                 );
             } catch (Exception e) {
-                throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil");
+                throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil", e);
             }
 
             client.setClientPicture(null);
             this.clientRepository.save(client);
         }
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Imagem perfil excluida com sucesso", null);
+        return new DefaultResponse<Void>(true, "Imagem perfil excluida com sucesso", null);
     }
 }

@@ -3,11 +3,12 @@ package com.guisebastiao.ecommerceapi.service.impl;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Favorite;
 import com.guisebastiao.ecommerceapi.domain.Product;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.FavoriteRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.favorite.FavoriteRequest;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
+import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.UnauthorizedException;
@@ -15,7 +16,7 @@ import com.guisebastiao.ecommerceapi.mapper.FavoriteMapper;
 import com.guisebastiao.ecommerceapi.mapper.ProductMapper;
 import com.guisebastiao.ecommerceapi.repository.FavoriteRepository;
 import com.guisebastiao.ecommerceapi.repository.ProductRepository;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.FavoriteService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
@@ -44,13 +45,13 @@ public class FavoriteServiceImpl implements FavoriteService {
     private ProductMapper productMapper;
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider clientAuthProvider;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createFavorite(FavoriteRequestDTO favoriteRequestDTO) {
+    public DefaultResponse<Void> createFavorite(FavoriteRequest favoriteRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
-        Product product = this.findProduct(favoriteRequestDTO.productId());
+        Product product = this.findProduct(favoriteRequest.productId());
 
         boolean alreadyFavorite = this.favoriteRepository.alreadyFavorite(client.getId(), product.getId());
 
@@ -58,37 +59,40 @@ public class FavoriteServiceImpl implements FavoriteService {
             throw new ConflictEntityException("Esse produto já está marcado como favorito");
         }
 
-        Favorite favorite = this.favoriteMapper.toEntity(favoriteRequestDTO);
+        Favorite favorite = this.favoriteMapper.toEntity(favoriteRequest);
         favorite.setClient(client);
         favorite.setProduct(product);
 
         this.favoriteRepository.save(favorite);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto salvo como favorito", null);
+        return new DefaultResponse<Void>(true, "Produto salvo como favorito", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<ProductResponseDTO>> findAllFavorites(int offset, int limit) {
+    public DefaultResponse<PageResponse<ProductResponse>> findAllFavorites(int offset, int limit) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
         Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
 
         Page<Product> resultPage = this.favoriteRepository.findAllProductsFavoritesByClientId(client.getId(), pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<ProductResponseDTO> dataResponse = resultPage.getContent().stream().map(this.productMapper::toDto).toList();
+        List<ProductResponse> dataResponse = resultPage.getContent().stream().map(this.productMapper::toDTO).toList();
 
-        PageResponseDTO<ProductResponseDTO> data = new PageResponseDTO<ProductResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<ProductResponse> data = new PageResponse<ProductResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<ProductResponseDTO>>(Boolean.TRUE, "Produtos favoritos retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<ProductResponse>>(true, "Produtos favoritos retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteFavorite(String favoriteId) {
+    public DefaultResponse<Void> deleteFavorite(String productId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
-        Favorite favorite = this.findFavorite(favoriteId);
+        Product product = this.findProduct(productId);
+
+        Favorite favorite = favoriteRepository.findByClientIdAndProductId(client.getId(), product.getId())
+                .orElseThrow(() -> new BadRequestException("Você não tem esse produto como favorito"));
 
         if(!favorite.getClient().getId().equals(client.getId())) {
             throw new UnauthorizedException("Você não tem permissão para excluir essa item dos favoritos");
@@ -96,12 +100,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         this.favoriteRepository.delete(favorite);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto removido dos favoritos com sucesso", null);
-    }
-
-    private Favorite findFavorite(String favoriteId) {
-        return this.favoriteRepository.findById(UUIDConverter.toUUID(favoriteId))
-                .orElseThrow(() -> new EntityNotFoundException("Produto favorito não encontrado"));
+        return new DefaultResponse<Void>(true, "Produto removido dos favoritos com sucesso", null);
     }
 
     private Product findProduct(String productId) {

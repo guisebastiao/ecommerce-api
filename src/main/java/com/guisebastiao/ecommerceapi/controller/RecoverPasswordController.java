@@ -1,8 +1,8 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CreateResetPasswordRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ResetPasswordRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.recoverPassword.CreateResetPasswordRequest;
+import com.guisebastiao.ecommerceapi.dto.request.recoverPassword.ResetPasswordRequest;
 import com.guisebastiao.ecommerceapi.service.RecoverPasswordService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +18,14 @@ public class RecoverPasswordController {
     private RecoverPasswordService recoverPasswordService;
 
     @PostMapping
-    public ResponseEntity<DefaultDTO<Void>> createRecoverPassword(@RequestBody @Valid CreateResetPasswordRequestDTO createResetPasswordRequestDTO) {
-        DefaultDTO<Void> response = this.recoverPasswordService.createRecoverPassword(createResetPasswordRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createRecoverPassword(@RequestBody @Valid CreateResetPasswordRequest createResetPasswordRequest) {
+        DefaultResponse<Void> response = this.recoverPasswordService.createRecoverPassword(createResetPasswordRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{code}")
-    public ResponseEntity<DefaultDTO<Void>> resetPassword(@PathVariable String code, @RequestBody @Valid ResetPasswordRequestDTO resetPasswordRequestDTO) {
-        DefaultDTO<Void> response = this.recoverPasswordService.resetPassword(code, resetPasswordRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> resetPassword(@PathVariable String code, @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+        DefaultResponse<Void> response = this.recoverPasswordService.resetPassword(code, resetPasswordRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -1,13 +1,13 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CategoryRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CategoryResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.request.category.CategoryRequest;
+import com.guisebastiao.ecommerceapi.dto.response.category.CategoryResponse;
 
 public interface CategoryService {
-    DefaultDTO<Void> createCategory(CategoryRequestDTO categoryRequestDTO);
-    DefaultDTO<PageResponseDTO<CategoryResponseDTO>> findAllCategories(int offset, int limit);
-    DefaultDTO<Void> updateCategory(String categoryId, CategoryRequestDTO categoryRequestDTO);
-    DefaultDTO<Void> deleteCategory(String categoryId);
+    DefaultResponse<Void> createCategory(CategoryRequest categoryRequest);
+    DefaultResponse<PageResponse<CategoryResponse>> findAllCategories(int offset, int limit);
+    DefaultResponse<Void> updateCategory(String categoryId, CategoryRequest categoryRequest);
+    DefaultResponse<Void> deleteCategory(String categoryId);
 }

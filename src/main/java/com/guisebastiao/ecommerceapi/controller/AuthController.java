@@ -1,14 +1,14 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ActiveLoginRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.LoginRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.RefreshTokenRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.RegisterRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ActiveLoginResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.LoginResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.RefreshTokenResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RefreshTokenRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
+import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
 import com.guisebastiao.ecommerceapi.service.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,32 +23,38 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<DefaultDTO<LoginResponseDTO>> login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
-        DefaultDTO<LoginResponseDTO> response = this.authService.login(loginRequestDTO);
+    public ResponseEntity<DefaultResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest loginRequest) {
+        DefaultResponse<LoginResponse> response = this.authService.login(loginRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/active-login")
-    public ResponseEntity<DefaultDTO<ActiveLoginResponseDTO>> activeLogin(@RequestBody @Valid ActiveLoginRequestDTO activeLoginRequestDTO) {
-        DefaultDTO<ActiveLoginResponseDTO> response = this.authService.activeLogin(activeLoginRequestDTO);
+    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> activeLogin(@RequestBody @Valid ActiveLoginRequest activeLoginRequest, HttpServletResponse httpResponse) {
+        DefaultResponse<ClientSimpleResponse> response = this.authService.activeLogin(activeLoginRequest, httpResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<DefaultDTO<Void>> register(@RequestBody @Valid RegisterRequestDTO registerRequestDTO) {
-        DefaultDTO<Void> response = this.authService.register(registerRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> register(@RequestBody @Valid RegisterRequest registerRequest) {
+        DefaultResponse<Void> response = this.authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/active-account/{verificationCode}")
-    public ResponseEntity<DefaultDTO<Void>> activeAccount(@PathVariable String verificationCode) {
-        DefaultDTO<Void> response = this.authService.activeAccount(verificationCode);
+    public ResponseEntity<DefaultResponse<Void>> activeAccount(@PathVariable String verificationCode) {
+        DefaultResponse<Void> response = this.authService.activeAccount(verificationCode);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<DefaultResponse<Void>> logout(HttpServletResponse httpResponse) {
+        DefaultResponse<Void> response = this.authService.logout(httpResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<DefaultDTO<RefreshTokenResponseDTO>> refreshToken(@RequestBody @Valid RefreshTokenRequestDTO refreshTokenRequestDTO) {
-        DefaultDTO<RefreshTokenResponseDTO> response = this.authService.refreshToken(refreshTokenRequestDTO);
+    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest, HttpServletResponse httpResponse) {
+        DefaultResponse<ClientSimpleResponse> response = this.authService.refreshToken(refreshTokenRequest, httpResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

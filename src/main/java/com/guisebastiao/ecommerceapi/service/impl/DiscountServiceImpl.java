@@ -1,11 +1,11 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.Discount;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.DiscountRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.DiscountResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.discount.DiscountRequest;
+import com.guisebastiao.ecommerceapi.dto.response.discount.DiscountResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.mapper.DiscountMapper;
 import com.guisebastiao.ecommerceapi.repository.DiscountRepository;
@@ -31,51 +31,51 @@ public class DiscountServiceImpl implements DiscountService {
     private DiscountMapper discountMapper;
 
     @Override
-    public DefaultDTO<Void> createDiscount(DiscountRequestDTO discountRequestDTO) {
-        Discount discount = this.discountMapper.toEntity(discountRequestDTO);
+    public DefaultResponse<Void> createDiscount(DiscountRequest discountRequest) {
+        Discount discount = this.discountMapper.toEntity(discountRequest);
 
         this.discountRepository.save(discount);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto criado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Desconto criado com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<DiscountResponseDTO>> findAllDiscounts(int offset, int limit) {
+    public DefaultResponse<PageResponse<DiscountResponse>> findAllDiscounts(int offset, int limit) {
         Pageable pageable = PageRequest.of(offset, limit, Sort.by("name").ascending());
 
         Page<Discount> resultPage = this.discountRepository.findAll(pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<DiscountResponseDTO> dataResponse = resultPage.getContent().stream().map(this.discountMapper::toDto).toList();
+        List<DiscountResponse> dataResponse = resultPage.getContent().stream().map(this.discountMapper::toDTO).toList();
 
-        PageResponseDTO<DiscountResponseDTO> data = new PageResponseDTO<DiscountResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<DiscountResponse> data = new PageResponse<DiscountResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<DiscountResponseDTO>>(Boolean.TRUE, "Descontos retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<DiscountResponse>>(true, "Descontos retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> updateDiscount(String discountId, DiscountRequestDTO discountRequestDTO) {
+    public DefaultResponse<Void> updateDiscount(String discountId, DiscountRequest discountRequest) {
         Discount discount = this.findById(discountId);
 
-        discount.setName(discountRequestDTO.name());
-        discount.setPercent(discountRequestDTO.percent());
-        discount.setEndDate(discountRequestDTO.endDate());
+        discount.setName(discountRequest.name());
+        discount.setPercent(discountRequest.percent());
+        discount.setEndDate(discountRequest.endDate());
 
         this.discountRepository.save(discount);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto atualizado com sucesso", null);
+        return new DefaultResponse<Void>(true, "Desconto atualizado com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteDiscount(String discountId) {
+    public DefaultResponse<Void> deleteDiscount(String discountId) {
         Discount discount = this.findById(discountId);
 
         this.discountRepository.delete(discount);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Desconto excluido com sucesso", null);
+        return new DefaultResponse<Void>(true, "Desconto excluido com sucesso", null);
     }
 
     private Discount findById(String discountId) {

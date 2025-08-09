@@ -1,10 +1,10 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CartItemRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CartItemResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
+import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
+import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 import com.guisebastiao.ecommerceapi.service.CartService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +20,26 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping
-    public ResponseEntity<DefaultDTO<Void>> addProductToCart(@RequestBody @Valid CartItemRequestDTO cartItemRequestDTO) {
-        DefaultDTO<Void> response = this.cartService.addProductToCart(cartItemRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> addProductToCart(@RequestBody @Valid CartItemRequest cartItemRequest) {
+        DefaultResponse<Void> response = this.cartService.addProductToCart(cartItemRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<DefaultDTO<PageResponseDTO<CartItemResponseDTO>>> findAllCartItems(@Valid PaginationFilterDTO pagination) {
-        DefaultDTO<PageResponseDTO<CartItemResponseDTO>> response = this.cartService.findAllCartItems(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<PageResponse<CartItemResponse>>> findAllCartItems(@Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<CartItemResponse>> response = this.cartService.findAllCartItems(pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{cartItemId}")
-    public ResponseEntity<DefaultDTO<Void>> removeProductFromCart(@PathVariable String cartItemId) {
-        DefaultDTO<Void> response = this.cartService.removeProductFromCart(cartItemId);
+    public ResponseEntity<DefaultResponse<Void>> removeProductFromCart(@PathVariable String cartItemId) {
+        DefaultResponse<Void> response = this.cartService.removeProductFromCart(cartItemId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{cartItemId}/remove-all")
-    public ResponseEntity<DefaultDTO<Void>> removeAllProductsFromCart(@PathVariable String cartItemId) {
-        DefaultDTO<Void> response = this.cartService.removeAllProductsFromCart(cartItemId);
+    public ResponseEntity<DefaultResponse<Void>> removeAllProductsFromCart(@PathVariable String cartItemId) {
+        DefaultResponse<Void> response = this.cartService.removeAllProductsFromCart(cartItemId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

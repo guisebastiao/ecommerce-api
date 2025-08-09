@@ -1,10 +1,10 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CategoryRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CategoryResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
+import com.guisebastiao.ecommerceapi.dto.request.category.CategoryRequest;
+import com.guisebastiao.ecommerceapi.dto.response.category.CategoryResponse;
 import com.guisebastiao.ecommerceapi.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +20,26 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<DefaultDTO<Void>> createCategory(@RequestBody @Valid CategoryRequestDTO categoryRequestDTO) {
-        DefaultDTO<Void> response = this.categoryService.createCategory(categoryRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createCategory(@RequestBody @Valid CategoryRequest categoryRequest) {
+        DefaultResponse<Void> response = this.categoryService.createCategory(categoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<DefaultDTO<PageResponseDTO<CategoryResponseDTO>>> findAllCategories(@Valid PaginationFilterDTO pagination) {
-        DefaultDTO<PageResponseDTO<CategoryResponseDTO>> response = this.categoryService.findAllCategories(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<PageResponse<CategoryResponse>>> findAllCategories(@Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<CategoryResponse>> response = this.categoryService.findAllCategories(pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<DefaultDTO<Void>> updateCategory(@PathVariable String categoryId, @RequestBody @Valid CategoryRequestDTO categoryRequestDTO) {
-        DefaultDTO<Void> response = this.categoryService.updateCategory(categoryId, categoryRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> updateCategory(@PathVariable String categoryId, @RequestBody @Valid CategoryRequest categoryRequest) {
+        DefaultResponse<Void> response = this.categoryService.updateCategory(categoryId, categoryRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<DefaultDTO<Void>> updateCategory(@PathVariable String categoryId) {
-        DefaultDTO<Void> response = this.categoryService.deleteCategory(categoryId);
+    public ResponseEntity<DefaultResponse<Void>> updateCategory(@PathVariable String categoryId) {
+        DefaultResponse<Void> response = this.categoryService.deleteCategory(categoryId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

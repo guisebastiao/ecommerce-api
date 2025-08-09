@@ -1,18 +1,19 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ActiveLoginRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.LoginRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.RefreshTokenRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.RegisterRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ActiveLoginResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.LoginResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.RefreshTokenResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RefreshTokenRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
+import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
-    DefaultDTO<LoginResponseDTO> login(LoginRequestDTO loginRequestDTO);
-    DefaultDTO<ActiveLoginResponseDTO> activeLogin(ActiveLoginRequestDTO activeLoginRequestDTO);
-    DefaultDTO<Void> register(RegisterRequestDTO registerRequestDTO);
-    DefaultDTO<Void> activeAccount(String verificationCode);
-    DefaultDTO<RefreshTokenResponseDTO> refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO);
+    DefaultResponse<LoginResponse> login(LoginRequest loginRequest);
+    DefaultResponse<ClientSimpleResponse> activeLogin(ActiveLoginRequest activeLoginRequest, HttpServletResponse response);
+    DefaultResponse<Void> register(RegisterRequest registerRequest);
+    DefaultResponse<Void> activeAccount(String verificationCode);
+    DefaultResponse<Void> logout(HttpServletResponse response);
+    DefaultResponse<ClientSimpleResponse> refreshToken(RefreshTokenRequest refreshTokenRequest, HttpServletResponse response);
 }

@@ -1,11 +1,11 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.Category;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CategoryRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CategoryResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.category.CategoryRequest;
+import com.guisebastiao.ecommerceapi.dto.response.category.CategoryResponse;
 import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.mapper.CategoryMapper;
@@ -33,50 +33,50 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createCategory(CategoryRequestDTO categoryRequestDTO) {
-        boolean existsCategory = this.categoryRepository.findByName(categoryRequestDTO.name()).isPresent();
+    public DefaultResponse<Void> createCategory(CategoryRequest categoryRequest) {
+        boolean existsCategory = this.categoryRepository.findByName(categoryRequest.name()).isPresent();
 
         if(existsCategory) {
             throw new ConflictEntityException("Essa categoria já existe");
         }
 
-        Category category = categoryMapper.toEntity(categoryRequestDTO);
-        category.setName(categoryRequestDTO.name().toUpperCase());
+        Category category = categoryMapper.toEntity(categoryRequest);
+        category.setName(categoryRequest.name().toUpperCase());
 
         this.categoryRepository.save(category);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Categoria criada com sucesso", null);
+        return new DefaultResponse<Void>(true, "Categoria criada com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<CategoryResponseDTO>> findAllCategories(int offset, int limit) {
+    public DefaultResponse<PageResponse<CategoryResponse>> findAllCategories(int offset, int limit) {
         Pageable pageable = PageRequest.of(offset, limit, Sort.by("name").ascending());
 
         Page<Category> resultPage = this.categoryRepository.findAll(pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<CategoryResponseDTO> dataResponse = resultPage.getContent().stream().map(this.categoryMapper::toDto).toList();
+        List<CategoryResponse> dataResponse = resultPage.getContent().stream().map(this.categoryMapper::toDTO).toList();
 
-        PageResponseDTO<CategoryResponseDTO> data = new PageResponseDTO<CategoryResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<CategoryResponse> data = new PageResponse<CategoryResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<CategoryResponseDTO>>(Boolean.TRUE, "Categorias retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<CategoryResponse>>(true, "Categorias retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> updateCategory(String categoryId, CategoryRequestDTO categoryRequestDTO) {
+    public DefaultResponse<Void> updateCategory(String categoryId, CategoryRequest categoryRequest) {
         Category category = this.findById(categoryId);
-        category.setName(categoryRequestDTO.name().toUpperCase());
+        category.setName(categoryRequest.name().toUpperCase());
 
         categoryRepository.save(category);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Categoria atualizada com sucesso", null);
+        return new DefaultResponse<Void>(true, "Categoria atualizada com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteCategory(String categoryId) {
+    public DefaultResponse<Void> deleteCategory(String categoryId) {
         Category category = this.findById(categoryId);
 
         boolean existsAssociatedProducts = category.getProducts().isEmpty();
@@ -87,7 +87,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         this.categoryRepository.delete(category);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Categoria excluida com sucesso", null);
+        return new DefaultResponse<Void>(true, "Categoria excluida com sucesso", null);
     }
 
     private Category findById(String categoryId) {

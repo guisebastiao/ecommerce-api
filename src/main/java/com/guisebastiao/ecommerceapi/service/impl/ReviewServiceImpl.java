@@ -3,18 +3,18 @@ package com.guisebastiao.ecommerceapi.service.impl;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.domain.Review;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ReviewRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ReviewResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.review.ReviewRequest;
+import com.guisebastiao.ecommerceapi.dto.response.review.ReviewResponse;
 import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.UnauthorizedException;
 import com.guisebastiao.ecommerceapi.mapper.ReviewMapper;
 import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.repository.ReviewRepository;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.ReviewService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
@@ -36,14 +36,14 @@ public class ReviewServiceImpl implements ReviewService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider clientAuthProvider;
 
     @Autowired
     private ReviewMapper reviewMapper;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createReview(String productId, ReviewRequestDTO reviewRequestDTO) {
+    public DefaultResponse<Void> createReview(String productId, ReviewRequest reviewRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Product product = this.findProduct(productId);
 
@@ -53,33 +53,33 @@ public class ReviewServiceImpl implements ReviewService {
             throw new ConflictEntityException("Você já avaliou esse produto");
         }
 
-        Review review = this.reviewMapper.toEntity(reviewRequestDTO);
+        Review review = this.reviewMapper.toEntity(reviewRequest);
         review.setClient(client);
         review.setProduct(product);
 
         this.reviewRepository.save(review);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Avaliação criada com sucesso", null);
+        return new DefaultResponse<Void>(true, "Avaliação criada com sucesso", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<ReviewResponseDTO>> findAllReviews(String productId, int offset, int limit) {
+    public DefaultResponse<PageResponse<ReviewResponse>> findAllReviews(String productId, int offset, int limit) {
         Pageable pageable = PageRequest.of(offset, limit);
 
         Page<Review> resultPage = this.reviewRepository.findAll(pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<ReviewResponseDTO> dataResponse = resultPage.getContent().stream().map(this.reviewMapper::toDto).toList();
+        List<ReviewResponse> dataResponse = resultPage.getContent().stream().map(this.reviewMapper::toDTO).toList();
 
-        PageResponseDTO<ReviewResponseDTO> data = new PageResponseDTO<ReviewResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<ReviewResponse> data = new PageResponse<ReviewResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<ReviewResponseDTO>>(Boolean.TRUE, "Avaliações retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<ReviewResponse>>(Boolean.TRUE, "Avaliações retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> deleteReview(String reviewId) {
+    public DefaultResponse<Void> deleteReview(String reviewId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         Review review = this.findReview(reviewId);
 
@@ -89,7 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         this.reviewRepository.delete(review);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Avaliação excluida com sucesso", null);
+        return new DefaultResponse<Void>(true, "Avaliação excluida com sucesso", null);
     }
 
     private Review findReview(String reviewId) {

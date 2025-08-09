@@ -12,7 +12,6 @@ import java.util.UUID;
 
 public interface DiscountRepository extends JpaRepository<Discount, UUID> {
     @Modifying
-    @Transactional
     @Query("DELETE FROM Discount d WHERE d.endDate < :now")
     void deleteAllByDiscountExpired(@Param("now") LocalDateTime now);
 }

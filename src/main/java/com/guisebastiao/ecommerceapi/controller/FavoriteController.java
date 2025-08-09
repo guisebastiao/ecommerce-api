@@ -1,11 +1,10 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
-import com.guisebastiao.ecommerceapi.dto.request.FavoriteRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ProductRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
+import com.guisebastiao.ecommerceapi.dto.request.favorite.FavoriteRequest;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 import com.guisebastiao.ecommerceapi.service.FavoriteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +20,20 @@ public class FavoriteController {
     private FavoriteService favoriteService;
 
     @PostMapping
-    public ResponseEntity<DefaultDTO<Void>> createFavorite(@RequestBody @Valid FavoriteRequestDTO favoriteRequestDTO) {
-        DefaultDTO<Void> response = this.favoriteService.createFavorite(favoriteRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createFavorite(@RequestBody @Valid FavoriteRequest favoriteRequest) {
+        DefaultResponse<Void> response = this.favoriteService.createFavorite(favoriteRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<DefaultDTO<PageResponseDTO<ProductResponseDTO>>> findAllFavorites(@Valid PaginationFilterDTO pagination) {
-        DefaultDTO<PageResponseDTO<ProductResponseDTO>> response = this.favoriteService.findAllFavorites(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<PageResponse<ProductResponse>>> findAllFavorites(@Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<ProductResponse>> response = this.favoriteService.findAllFavorites(pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/{favoriteId}")
-    public ResponseEntity<DefaultDTO<Void>> deleteFavorite(@PathVariable String favoriteId) {
-        DefaultDTO<Void> response = this.favoriteService.deleteFavorite(favoriteId);
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<DefaultResponse<Void>> deleteFavorite(@PathVariable String productId) {
+        DefaultResponse<Void> response = this.favoriteService.deleteFavorite(productId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -4,11 +4,11 @@ import com.guisebastiao.ecommerceapi.domain.Cart;
 import com.guisebastiao.ecommerceapi.domain.CartItem;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Product;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PagingDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CartItemRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CartItemResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
+import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
+import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.UnauthorizedException;
@@ -16,7 +16,7 @@ import com.guisebastiao.ecommerceapi.mapper.CartItemMapper;
 import com.guisebastiao.ecommerceapi.repository.CartItemRepository;
 import com.guisebastiao.ecommerceapi.repository.CartRepository;
 import com.guisebastiao.ecommerceapi.repository.ProductRepository;
-import com.guisebastiao.ecommerceapi.security.ClientAuthProvider;
+import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.CartService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
@@ -42,28 +42,28 @@ public class CartServiceImpl implements CartService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ClientAuthProvider clientAuthProvider;
+    private AuthProvider clientAuthProvider;
 
     @Autowired
     private CartItemMapper cartItemMapper;
 
     @Override
     @Transactional
-    public DefaultDTO<Void> addProductToCart(CartItemRequestDTO cartRequestDTO) {
+    public DefaultResponse<Void> addProductToCart(CartItemRequest cartRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
-        Product product = this.findProduct(cartRequestDTO.productId());
+        Product product = this.findProduct(cartRequest.productId());
 
-        if (cartRequestDTO.quantity() > product.getStock()) {
+        if (cartRequest.quantity() > product.getStock()) {
             throw new BadRequestException("Quantidade de produto excede o estoque");
         }
 
         Cart cart = this.clientHasCart(client);
 
-        CartItem cartItem = this.existingCartItem(cartRequestDTO.productId(), cartRequestDTO, client);
+        CartItem cartItem = this.existingCartItem(cartRequest.productId(), cartRequest, client);
 
         if(cartItem.getId() != null){
-            cartItem.setQuantity(cartItem.getQuantity() + cartRequestDTO.quantity());
+            cartItem.setQuantity(cartItem.getQuantity() + cartRequest.quantity());
         }
 
         cartItem.setCart(cart);
@@ -71,29 +71,29 @@ public class CartServiceImpl implements CartService {
 
         this.cartItemRepository.save(cartItem);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Item adicionado para o carrinho", null);
+        return new DefaultResponse<Void>(true, "Item adicionado para o carrinho", null);
     }
 
     @Override
-    public DefaultDTO<PageResponseDTO<CartItemResponseDTO>> findAllCartItems(int offset, int limit) {
+    public DefaultResponse<PageResponse<CartItemResponse>> findAllCartItems(int offset, int limit) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
         Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
 
         Page<CartItem> resultPage = this.cartItemRepository.findAllByClientId(client.getId(), pageable);
 
-        PagingDTO pagingDTO = new PagingDTO(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<CartItemResponseDTO> dataResponse = resultPage.getContent().stream().map(this.cartItemMapper::toDto).toList();
+        List<CartItemResponse> dataResponse = resultPage.getContent().stream().map(this.cartItemMapper::toDTO).toList();
 
-        PageResponseDTO<CartItemResponseDTO> data = new PageResponseDTO<CartItemResponseDTO>(dataResponse, pagingDTO);
+        PageResponse<CartItemResponse> data = new PageResponse<CartItemResponse>(dataResponse, paging);
 
-        return new DefaultDTO<PageResponseDTO<CartItemResponseDTO>>(Boolean.TRUE, "Items do carrinho retornados com sucesso", data);
+        return new DefaultResponse<PageResponse<CartItemResponse>>(true, "Items do carrinho retornados com sucesso", data);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> removeProductFromCart(String cartItemId) {
+    public DefaultResponse<Void> removeProductFromCart(String cartItemId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
         CartItem cartItem = this.findCartItem(cartItemId);
 
@@ -109,12 +109,12 @@ public class CartServiceImpl implements CartService {
             this.cartItemRepository.save(cartItem);
         }
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto removido do carrinho", null);
+        return new DefaultResponse<Void>(true, "Produto removido do carrinho", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> removeAllProductsFromCart(String cartItemId) {
+    public DefaultResponse<Void> removeAllProductsFromCart(String cartItemId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
         System.out.println(cartItemId);
@@ -127,7 +127,7 @@ public class CartServiceImpl implements CartService {
 
         this.cartItemRepository.delete(cartItem);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Produto removido do carrinho", null);
+        return new DefaultResponse<Void>(true, "Produto removido do carrinho", null);
     }
 
     private Product findProduct(String productId) {
@@ -135,9 +135,9 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
     }
 
-    private CartItem existingCartItem(String productId, CartItemRequestDTO cartRequestDTO, Client client) {
+    private CartItem existingCartItem(String productId, CartItemRequest cartRequest, Client client) {
         return this.cartItemRepository.findCartItemByProductId(UUIDConverter.toUUID(productId), client.getId())
-                .orElse(this.cartItemMapper.toEntity(cartRequestDTO));
+                .orElse(this.cartItemMapper.toEntity(cartRequest));
     }
 
     private Cart clientHasCart(Client client) {

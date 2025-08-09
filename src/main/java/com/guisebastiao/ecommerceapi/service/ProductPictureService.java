@@ -1,9 +1,9 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ProductPictureRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.productPicture.ProductPictureRequest;
 
 public interface ProductPictureService {
-    DefaultDTO<Void> uploadProductPicture(String productId, ProductPictureRequestDTO productPictureRequestDTO);
-    DefaultDTO<Void> deleteProductPicture(String productPictureId);
+    DefaultResponse<Void> uploadProductPicture(String productId, ProductPictureRequest productPictureRequest);
+    DefaultResponse<Void> deleteProductPicture(String productPictureId);
 }

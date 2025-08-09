@@ -1,8 +1,8 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ClientPictureRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ClientPictureResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.clientPicture.ClientPictureRequest;
+import com.guisebastiao.ecommerceapi.dto.response.clientPicture.ClientPictureResponse;
 import com.guisebastiao.ecommerceapi.service.ClientPictureService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +18,20 @@ public class ClientPictureController {
     private ClientPictureService clientPictureService;
 
     @PostMapping
-    public ResponseEntity<DefaultDTO<Void>> createClientPicture(@ModelAttribute @Valid ClientPictureRequestDTO clientPictureRequestDTO) {
-        DefaultDTO<Void> response = this.clientPictureService.createClientPicture(clientPictureRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createClientPicture(@ModelAttribute @Valid ClientPictureRequest clientPictureRequest) {
+        DefaultResponse<Void> response = this.clientPictureService.createClientPicture(clientPictureRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{clientId}")
-    public ResponseEntity<DefaultDTO<ClientPictureResponseDTO>> getClientPicture(@PathVariable String clientId) {
-        DefaultDTO<ClientPictureResponseDTO> response = this.clientPictureService.getClientPicture(clientId);
+    public ResponseEntity<DefaultResponse<ClientPictureResponse>> getClientPicture(@PathVariable String clientId) {
+        DefaultResponse<ClientPictureResponse> response = this.clientPictureService.getClientPicture(clientId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping
-    public ResponseEntity<DefaultDTO<Void>> deleteClientPicture() {
-        DefaultDTO<Void> response = this.clientPictureService.deleteClientPicture();
+    public ResponseEntity<DefaultResponse<Void>> deleteClientPicture() {
+        DefaultResponse<Void> response = this.clientPictureService.deleteClientPicture();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

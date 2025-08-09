@@ -1,14 +1,19 @@
 package com.guisebastiao.ecommerceapi.mapper;
 
 import com.guisebastiao.ecommerceapi.domain.Client;
-import com.guisebastiao.ecommerceapi.dto.request.RegisterRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ClientResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ClientSimpleResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientResponse;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {ClientPictureMapper.class})
 public interface ClientMapper {
-    Client toEntity(RegisterRequestDTO registerRequestDTO);
-    ClientResponseDTO toDto(Client client);
-    ClientSimpleResponseDTO toSimpleDto(Client client);
+    Client toEntity(RegisterRequest registerRequestDTO);
+
+    @Mapping(source = "id", target = "clientId")
+    ClientResponse toDTO(Client client);
+
+    @Mapping(source = "id", target = "clientId")
+    ClientSimpleResponse toSimpleDTO(Client client);
 }

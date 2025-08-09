@@ -1,10 +1,10 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CommentRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CommentResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
+import com.guisebastiao.ecommerceapi.dto.request.comment.CommentRequest;
+import com.guisebastiao.ecommerceapi.dto.response.comment.CommentResponse;
 import com.guisebastiao.ecommerceapi.service.CommentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +20,26 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> createComment(@PathVariable String productId, @RequestBody @Valid CommentRequestDTO commentRequestDTO) {
-        DefaultDTO<Void> response = this.commentService.createComment(productId, commentRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createComment(@PathVariable String productId, @RequestBody @Valid CommentRequest commentRequest) {
+        DefaultResponse<Void> response = this.commentService.createComment(productId, commentRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<PageResponseDTO<CommentResponseDTO>>> findAllComments(@PathVariable String productId, @Valid PaginationFilterDTO pagination) {
-        DefaultDTO<PageResponseDTO<CommentResponseDTO>> response = this.commentService.findAllComments(productId, pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<PageResponse<CommentResponse>>> findAllComments(@PathVariable String productId, @Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<CommentResponse>> response = this.commentService.findAllComments(productId, pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<DefaultDTO<Void>> updateComment(@PathVariable String commentId, @RequestBody @Valid CommentRequestDTO commentRequestDTO) {
-        DefaultDTO<Void> response = this.commentService.updateComment(commentId, commentRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> updateComment(@PathVariable String commentId, @RequestBody @Valid CommentRequest commentRequest) {
+        DefaultResponse<Void> response = this.commentService.updateComment(commentId, commentRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<DefaultDTO<Void>> deleteComment(@PathVariable String commentId) {
-        DefaultDTO<Void> response = this.commentService.deleteComment(commentId);
+    public ResponseEntity<DefaultResponse<Void>> deleteComment(@PathVariable String commentId) {
+        DefaultResponse<Void> response = this.commentService.deleteComment(commentId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

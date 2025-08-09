@@ -1,15 +1,16 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ApplyDiscountRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ProductRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.discount.ApplyDiscountRequest;
+import com.guisebastiao.ecommerceapi.dto.request.product.ProductRequest;
+import com.guisebastiao.ecommerceapi.dto.response.discount.DiscountResponse;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 
 public interface ProductService {
-    DefaultDTO<Void> createProduct(ProductRequestDTO productRequestDTO);
-    DefaultDTO<Void> applyDiscount(ApplyDiscountRequestDTO applyDiscountRequestDTO);
-    DefaultDTO<ProductResponseDTO> findProductById(String productId);
-    DefaultDTO<Void> updateProduct(String productId, ProductRequestDTO productRequestDTO);
-    DefaultDTO<Void> deleteProduct(String productId);
-    DefaultDTO<Void> removeDiscount(String productId);
+    DefaultResponse<Void> createProduct(ProductRequest productRequest);
+    DefaultResponse<Void> applyDiscount(ApplyDiscountRequest applyDiscountRequest);
+    DefaultResponse<ProductResponse> findProductById(String productId);
+    DefaultResponse<Void> updateProduct(String productId, ProductRequest productRequest);
+    DefaultResponse<Void> deleteProduct(String productId);
+    DefaultResponse<Void> removeDiscount(String productId);
 }

@@ -1,9 +1,9 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.UpdateAccountRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.UpdatePasswordRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ClientResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.client.UpdateAccountRequest;
+import com.guisebastiao.ecommerceapi.dto.request.client.UpdatePasswordRequest;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientResponse;
 import com.guisebastiao.ecommerceapi.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +19,26 @@ public class ClientController {
     private ClientService clientService;
 
     @GetMapping("/{clientId}")
-    public ResponseEntity<DefaultDTO<ClientResponseDTO>> findClientById(@PathVariable String clientId){
-        DefaultDTO<ClientResponseDTO> response = this.clientService.findById(clientId);
+    public ResponseEntity<DefaultResponse<ClientResponse>> findClientById(@PathVariable String clientId){
+        DefaultResponse<ClientResponse> response = this.clientService.findById(clientId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping
-    public ResponseEntity<DefaultDTO<Void>> updateAccount(@RequestBody @Valid UpdateAccountRequestDTO updateAccountRequestDTO) {
-        DefaultDTO<Void> response = this.clientService.updateAccount(updateAccountRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> updateAccount(@RequestBody @Valid UpdateAccountRequest updateAccountRequest) {
+        DefaultResponse<Void> response = this.clientService.updateAccount(updateAccountRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/update-password")
-    public ResponseEntity<DefaultDTO<Void>> updatePassword(@RequestBody @Valid UpdatePasswordRequestDTO updatePasswordRequestDTO) {
-        DefaultDTO<Void> response = this.clientService.updatePassword(updatePasswordRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> updatePassword(@RequestBody @Valid UpdatePasswordRequest updatePasswordRequest) {
+        DefaultResponse<Void> response = this.clientService.updatePassword(updatePasswordRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping
-    public ResponseEntity<DefaultDTO<Void>> deleteAccount() {
-        DefaultDTO<Void> response = this.clientService.deleteAccount();
+    public ResponseEntity<DefaultResponse<Void>> deleteAccount() {
+        DefaultResponse<Void> response = this.clientService.deleteAccount();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

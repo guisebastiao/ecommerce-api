@@ -1,7 +1,7 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ProductPictureRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.productPicture.ProductPictureRequest;
 import com.guisebastiao.ecommerceapi.service.ProductPictureService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +17,14 @@ public class ProductImageController {
     private ProductPictureService productPictureService;
 
     @PostMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> uploadProductPicture(@PathVariable String productId, @ModelAttribute @Valid ProductPictureRequestDTO productPictureRequestDTO) {
-        DefaultDTO<Void> response = this.productPictureService.uploadProductPicture(productId, productPictureRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> uploadProductPicture(@PathVariable String productId, @ModelAttribute @Valid ProductPictureRequest productPictureRequest) {
+        DefaultResponse<Void> response = this.productPictureService.uploadProductPicture(productId, productPictureRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{productPictureId}")
-    public ResponseEntity<DefaultDTO<Void>> deleteProductPicture(@PathVariable String productPictureId) {
-        DefaultDTO<Void> response = this.productPictureService.deleteProductPicture(productPictureId);
+    public ResponseEntity<DefaultResponse<Void>> deleteProductPicture(@PathVariable String productPictureId) {
+        DefaultResponse<Void> response = this.productPictureService.deleteProductPicture(productPictureId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

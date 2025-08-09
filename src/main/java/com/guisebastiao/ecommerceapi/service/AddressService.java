@@ -1,13 +1,13 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.request.AddressRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.AddressResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.request.address.AddressRequest;
+import com.guisebastiao.ecommerceapi.dto.response.address.AddressResponse;
 
 public interface AddressService {
-    DefaultDTO<Void> createAddress(AddressRequestDTO addressRequestDTO);
-    DefaultDTO<PageResponseDTO<AddressResponseDTO>> findAllAddresses(int offset, int limit);
-    DefaultDTO<Void> updateAddress(String addressId, AddressRequestDTO addressRequestDTO);
-    DefaultDTO<Void> deleteAddress(String addressId);
+    DefaultResponse<Void> createAddress(AddressRequest addressRequest);
+    DefaultResponse<PageResponse<AddressResponse>> findAllAddresses(int offset, int limit);
+    DefaultResponse<Void> updateAddress(String addressId, AddressRequest addressRequest);
+    DefaultResponse<Void> deleteAddress(String addressId);
 }

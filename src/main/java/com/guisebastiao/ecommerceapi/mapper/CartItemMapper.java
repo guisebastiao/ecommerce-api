@@ -1,12 +1,15 @@
 package com.guisebastiao.ecommerceapi.mapper;
 
 import com.guisebastiao.ecommerceapi.domain.CartItem;
-import com.guisebastiao.ecommerceapi.dto.request.CartItemRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.CartItemResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
+import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CartItemMapper {
-    CartItem toEntity(CartItemRequestDTO cartItemRequestDTO);
-    CartItemResponseDTO toDto(CartItem cartItem);
+    CartItem toEntity(CartItemRequest cartItemRequestDTO);
+
+    @Mapping(source = "id", target = "cartItemId")
+    CartItemResponse toDTO(CartItem cartItem);
 }

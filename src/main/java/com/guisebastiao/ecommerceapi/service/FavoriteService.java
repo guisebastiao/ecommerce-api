@@ -1,12 +1,12 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.request.FavoriteRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ProductResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.request.favorite.FavoriteRequest;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 
 public interface FavoriteService {
-    DefaultDTO<Void> createFavorite(FavoriteRequestDTO favoriteRequestDTO);
-    DefaultDTO<PageResponseDTO<ProductResponseDTO>> findAllFavorites(int offset, int limit);
-    DefaultDTO<Void> deleteFavorite(String favoriteId);
+    DefaultResponse<Void> createFavorite(FavoriteRequest favoriteRequest);
+    DefaultResponse<PageResponse<ProductResponse>> findAllFavorites(int offset, int limit);
+    DefaultResponse<Void> deleteFavorite(String favoriteId);
 }

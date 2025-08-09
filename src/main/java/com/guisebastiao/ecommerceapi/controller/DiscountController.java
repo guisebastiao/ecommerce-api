@@ -1,10 +1,10 @@
 package com.guisebastiao.ecommerceapi.controller;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.PageResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilterDTO;
-import com.guisebastiao.ecommerceapi.dto.request.DiscountRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.DiscountResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
+import com.guisebastiao.ecommerceapi.dto.request.discount.DiscountRequest;
+import com.guisebastiao.ecommerceapi.dto.response.discount.DiscountResponse;
 import com.guisebastiao.ecommerceapi.service.DiscountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +20,26 @@ public class DiscountController {
     private DiscountService discountService;
 
     @PostMapping
-    public ResponseEntity<DefaultDTO<Void>> createDiscount(@RequestBody @Valid DiscountRequestDTO discountRequestDTO) {
-        DefaultDTO<Void> response = this.discountService.createDiscount(discountRequestDTO);
+    public ResponseEntity<DefaultResponse<Void>> createDiscount(@RequestBody @Valid DiscountRequest discountRequest) {
+        DefaultResponse<Void> response = this.discountService.createDiscount(discountRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<DefaultDTO<PageResponseDTO<DiscountResponseDTO>>> findAllDiscounts(@Valid PaginationFilterDTO pagination) {
-        DefaultDTO<PageResponseDTO<DiscountResponseDTO>> response = this.discountService.findAllDiscounts(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<PageResponse<DiscountResponse>>> findAllDiscounts(@Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<DiscountResponse>> response = this.discountService.findAllDiscounts(pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> updateDiscount(@PathVariable String discountId, @RequestBody @Valid DiscountRequestDTO discountRequestDTO) {
-        DefaultDTO<Void> response = this.discountService.updateDiscount(discountId, discountRequestDTO);
+    @PutMapping("/{discountId}")
+    public ResponseEntity<DefaultResponse<Void>> updateDiscount(@PathVariable String discountId, @RequestBody @Valid DiscountRequest discountRequest) {
+        DefaultResponse<Void> response = this.discountService.updateDiscount(discountId, discountRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<DefaultDTO<Void>> deleteDiscount(@PathVariable String discountId) {
-        DefaultDTO<Void> response = this.discountService.deleteDiscount(discountId);
+    @DeleteMapping("/{discountId}")
+    public ResponseEntity<DefaultResponse<Void>> deleteDiscount(@PathVariable String discountId) {
+        DefaultResponse<Void> response = this.discountService.deleteDiscount(discountId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

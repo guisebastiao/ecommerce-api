@@ -2,10 +2,10 @@ package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.RecoverPassword;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.MailDTO;
-import com.guisebastiao.ecommerceapi.dto.request.CreateResetPasswordRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ResetPasswordRequestDTO;
+import com.guisebastiao.ecommerceapi.dto.request.recoverPassword.CreateResetPasswordRequest;
+import com.guisebastiao.ecommerceapi.dto.request.recoverPassword.ResetPasswordRequest;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.repository.RecoverPasswordRepository;
@@ -48,8 +48,8 @@ public class RecoverPasswordServiceImpl implements RecoverPasswordService {
 
     @Override
     @Transactional
-    public DefaultDTO<Void> createRecoverPassword(CreateResetPasswordRequestDTO createResetPasswordRequestDTO) {
-        Client client = this.findClientByEmail(createResetPasswordRequestDTO.email());
+    public DefaultResponse<Void> createRecoverPassword(CreateResetPasswordRequest createResetPasswordRequest) {
+        Client client = this.findClientByEmail(createResetPasswordRequest.email());
 
         this.recoverPasswordRepository.deleteByRecoverPasswordByUserId(client.getId());
 
@@ -70,23 +70,23 @@ public class RecoverPasswordServiceImpl implements RecoverPasswordService {
 
         this.rabbitMailService.producer(mailDTO);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Você recebeu um email para redefinir sua senha", null);
+        return new DefaultResponse<Void>(true, "Você recebeu um email para redefinir sua senha", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> resetPassword(String code, ResetPasswordRequestDTO resetPasswordRequestDTO) {
+    public DefaultResponse<Void> resetPassword(String code, ResetPasswordRequest resetPasswordRequest) {
         RecoverPassword recoverPassword = this.findRecoverPasswordByCode(code);
 
         Client client = recoverPassword.getClient();
-        client.setPassword(this.passwordEncoder.encode(resetPasswordRequestDTO.newPassword()));
+        client.setPassword(this.passwordEncoder.encode(resetPasswordRequest.newPassword()));
         client.setRecoverPassword(null);
 
         this.clientRepository.save(client);
 
         this.recoverPasswordRepository.delete(recoverPassword);
 
-        return new DefaultDTO(Boolean.TRUE, "Sua senha foi recuperada com sucesso", null);
+        return new DefaultResponse(true, "Sua senha foi recuperada com sucesso", null);
     }
 
     private Client findClientByEmail(String email) {

@@ -3,15 +3,14 @@ package com.guisebastiao.ecommerceapi.service.impl;
 import com.guisebastiao.ecommerceapi.domain.AccountPending;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.LoginPending;
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.MailDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ActiveLoginRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.LoginRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.RefreshTokenRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.request.RegisterRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ActiveLoginResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.LoginResponseDTO;
-import com.guisebastiao.ecommerceapi.dto.response.RefreshTokenResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RefreshTokenRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
+import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
 import com.guisebastiao.ecommerceapi.enums.AccountStatus;
 import com.guisebastiao.ecommerceapi.enums.Role;
 import com.guisebastiao.ecommerceapi.exception.*;
@@ -19,20 +18,23 @@ import com.guisebastiao.ecommerceapi.mapper.ClientMapper;
 import com.guisebastiao.ecommerceapi.repository.AccountPendingRepository;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.repository.LoginPendingRepository;
-import com.guisebastiao.ecommerceapi.security.JsonWebTokenService;
+import com.guisebastiao.ecommerceapi.security.JWTService;
 import com.guisebastiao.ecommerceapi.service.AuthService;
 import com.guisebastiao.ecommerceapi.service.RabbitMailService;
 import com.guisebastiao.ecommerceapi.util.CodeGenerator;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.security.SecureRandom;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Service
@@ -48,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private AccountPendingRepository accountPendingRepository;
 
     @Autowired
-    private JsonWebTokenService jsonWebTokenService;
+    private JWTService jwtService;
 
     @Autowired
     private RabbitMailService rabbitMailService;
@@ -68,10 +70,16 @@ public class AuthServiceImpl implements AuthService {
     @Value("${frontend.url}")
     private String frontendUrl;
 
+    @Value("${cookie.name.access.token}")
+    private String cookieNameAccessToken;
+
+    @Value("${cookie.name.refresh.token}")
+    private String cookieNameRefreshToken;
+
     @Override
     @Transactional
-    public DefaultDTO<LoginResponseDTO> login(LoginRequestDTO loginRequestDTO) {
-        Client client = this.findClientByEmail(loginRequestDTO.email());
+    public DefaultResponse<LoginResponse> login(LoginRequest loginRequest) {
+        Client client = this.findClientByEmail(loginRequest.email());
 
         if(client == null){
             throw new EntityNotFoundException("Email ou senha inválidos");
@@ -81,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ForbiddenException("Você precisa ativar sua conta, verifique seu email");
         }
 
-        if(!passwordEncoder.matches(loginRequestDTO.password(), client.getPassword())){
+        if(!passwordEncoder.matches(loginRequest.password(), client.getPassword())){
             throw new UnauthorizedException("Email ou senha inválidos");
         }
 
@@ -107,14 +115,14 @@ public class AuthServiceImpl implements AuthService {
 
         this.rabbitMailService.producer(mailDTO);
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(code);
-        return new DefaultDTO<LoginResponseDTO>(Boolean.TRUE, "Um email foi enviado para você", loginResponseDTO);
+        LoginResponse loginResponse = new LoginResponse(code);
+        return new DefaultResponse<LoginResponse>(true, "Um email foi enviado para você", loginResponse);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<ActiveLoginResponseDTO> activeLogin(ActiveLoginRequestDTO activeLoginRequestDTO) {
-        LoginPending loginPending = this.loginPendingRepository.findByCode(activeLoginRequestDTO.code())
+    public DefaultResponse<ClientSimpleResponse> activeLogin(ActiveLoginRequest activeLoginRequest, HttpServletResponse response) {
+        LoginPending loginPending = this.loginPendingRepository.findByCode(activeLoginRequest.code())
                 .orElseThrow(() -> new BadRequestException("Algo deu errado ao completar seu login"));
 
         Client client = loginPending.getClient();
@@ -123,27 +131,33 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Nenhuma verificação pendente");
         }
 
-        if(!client.getLoginPending().getVerificationCode().equals(activeLoginRequestDTO.verificationCode())){
+        if(!client.getLoginPending().getVerificationCode().equals(activeLoginRequest.verificationCode())){
             throw new UnauthorizedException("Código de verificação inválido");
         }
 
-        String token = jsonWebTokenService.generateToken(client);
-        String refreshToken = jsonWebTokenService.generateRefreshToken(client);
-        Instant expiresAt = jsonWebTokenService.extractExpiration(token);
+        String accessToken = jwtService.generateAccessToken(client);
+        String refreshToken = jwtService.generateRefreshToken(client);
 
         client.setRefreshToken(refreshToken);
         this.clientRepository.save(client);
 
         this.loginPendingRepository.deleteByClientId(client.getId());
 
-        ActiveLoginResponseDTO activeLoginResponseDTO = new ActiveLoginResponseDTO(token, "Bearer", refreshToken, expiresAt, client.getId(), client.getName(), client.getEmail());
-        return new DefaultDTO<ActiveLoginResponseDTO>(Boolean.TRUE,  "Login efetuado com sucesso", activeLoginResponseDTO);
+        ClientSimpleResponse clientSimpleResponse = this.clientMapper.toSimpleDTO(client);
+
+        Cookie accessTokenCookie = this.generateCookie(this.cookieNameAccessToken, accessToken);
+        Cookie refreshTokenCookie = this.generateCookie(this.cookieNameRefreshToken, refreshToken);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+
+        return new DefaultResponse<ClientSimpleResponse>(true,  "Login efetuado com sucesso", clientSimpleResponse);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> register(RegisterRequestDTO registerRequestDTO) {
-        Client client = this.findClientByEmail(registerRequestDTO.email());
+    public DefaultResponse<Void> register(RegisterRequest registerRequest) {
+        Client client = this.findClientByEmail(registerRequest.email());
 
         if(client != null && client.getStatus() != AccountStatus.PENDING){
             throw new ConflictEntityException("Esse email já está cadastrado");
@@ -153,11 +167,11 @@ public class AuthServiceImpl implements AuthService {
 
         if(client != null) {
             this.accountPendingRepository.deleteAccountPendingByClientId(client.getId());
-            saveClient = this.clientRepository.findByEmail(registerRequestDTO.email())
+            saveClient = this.clientRepository.findByEmail(registerRequest.email())
                     .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
         } else {
-            saveClient = this.clientMapper.toEntity(registerRequestDTO);
-            saveClient.setPassword(passwordEncoder.encode(registerRequestDTO.password()));
+            saveClient = this.clientMapper.toEntity(registerRequest);
+            saveClient.setPassword(passwordEncoder.encode(registerRequest.password()));
             saveClient.setStatus(AccountStatus.PENDING);
             saveClient.setRole(Role.CLIENT);
             this.clientRepository.save(saveClient);
@@ -181,12 +195,12 @@ public class AuthServiceImpl implements AuthService {
 
         this.rabbitMailService.producer(mailDTO);
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Um email foi enviado para você, para confirme sua conta", null);
+        return new DefaultResponse<Void>(true, "Um email foi enviado para você, para confirme sua conta", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<Void> activeAccount(String verificationCode) {
+    public DefaultResponse<Void> activeAccount(String verificationCode) {
         AccountPending accountPending = this.accountPendingRepository.findByVerificationCode(verificationCode)
                 .orElseThrow(() -> new BadRequestException("Código de veficação expirado"));
 
@@ -200,29 +214,44 @@ public class AuthServiceImpl implements AuthService {
 
         this.accountPendingRepository.deleteAccountPendingByClientId(client.getId());
 
-        return new DefaultDTO<Void>(Boolean.TRUE, "Conta ativada com sucesso", null);
+        return new DefaultResponse<Void>(true, "Conta ativada com sucesso", null);
+    }
+
+    @Override
+    public DefaultResponse<Void> logout(HttpServletResponse response) {
+        ResponseCookie accessTokenCookie = this.deleteCookie(this.cookieNameAccessToken);
+        ResponseCookie refreshTokenCookie = this.deleteCookie(this.cookieNameRefreshToken);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+        return new DefaultResponse<>(true, "Logout efetuado com sucesso", null);
     }
 
     @Override
     @Transactional
-    public DefaultDTO<RefreshTokenResponseDTO> refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO) {
-        String refreshToken = refreshTokenRequestDTO.refreshToken();
-        String email = jsonWebTokenService.extractUsername(refreshToken);
+    public DefaultResponse<ClientSimpleResponse> refreshToken(RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) {
+        String refreshToken = refreshTokenRequest.refreshToken();
+        String email = jwtService.extractUsername(refreshToken);
         Client client = this.findClientByEmail(email);
 
         if(client == null || !refreshToken.equals(client.getRefreshToken()) ) {
             throw new UnauthorizedException("Refresh token inválido");
         }
 
-        if(jsonWebTokenService.isExpired(refreshToken)) {
+        if(jwtService.isExpired(refreshToken)) {
             throw new UnauthorizedException("Sessão expirada, faça o login novamente");
         }
 
-        String newToken = jsonWebTokenService.generateToken(client);
-        Instant expiresAt = jsonWebTokenService.extractExpiration(refreshToken);
-        RefreshTokenResponseDTO refreshTokenResponseDTO = new RefreshTokenResponseDTO(newToken, expiresAt);
+        String newAccessToken = jwtService.generateAccessToken(client);
 
-        return new DefaultDTO<RefreshTokenResponseDTO>(Boolean.TRUE, "Acesso renovado com sucesso", refreshTokenResponseDTO);
+        ClientSimpleResponse clientSimpleResponse = this.clientMapper.toSimpleDTO(client);
+
+        Cookie accessTokenCookie = this.generateCookie(this.cookieNameAccessToken, newAccessToken);
+
+        response.addCookie(accessTokenCookie);
+
+        return new DefaultResponse<ClientSimpleResponse>(true, "Acesso renovado com sucesso", clientSimpleResponse);
     }
 
     private Client findClientByEmail(String email) {
@@ -249,5 +278,23 @@ public class AuthServiceImpl implements AuthService {
 
     private String generateUrl(String verificationCode) {
         return String.format(this.frontendUrl + "/active-account/" + verificationCode);
+    }
+
+    private ResponseCookie deleteCookie(String name) {
+        return ResponseCookie.from(name, "")
+                .path("/")
+                .httpOnly(true)
+                .secure(false)
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+    }
+
+    private Cookie generateCookie(String name, String token) {
+        Cookie cookie = new Cookie(name, token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        return cookie;
     }
 }

@@ -1,11 +1,11 @@
 package com.guisebastiao.ecommerceapi.service;
 
-import com.guisebastiao.ecommerceapi.dto.DefaultDTO;
-import com.guisebastiao.ecommerceapi.dto.request.ClientPictureRequestDTO;
-import com.guisebastiao.ecommerceapi.dto.response.ClientPictureResponseDTO;
+import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.request.clientPicture.ClientPictureRequest;
+import com.guisebastiao.ecommerceapi.dto.response.clientPicture.ClientPictureResponse;
 
 public interface ClientPictureService {
-    DefaultDTO<Void> createClientPicture(ClientPictureRequestDTO clientPictureRequestDTO);
-    DefaultDTO<ClientPictureResponseDTO> getClientPicture(String clientId);
-    DefaultDTO<Void> deleteClientPicture();
+    DefaultResponse<Void> createClientPicture(ClientPictureRequest clientPictureRequest);
+    DefaultResponse<ClientPictureResponse> getClientPicture(String clientId);
+    DefaultResponse<Void> deleteClientPicture();
 }
