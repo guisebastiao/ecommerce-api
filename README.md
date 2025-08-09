@@ -9,8 +9,7 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
  - Spring Data JPA
  - PostgresSQL
  - Spring Security
- - JWT (JJWT)
- - OAuth2 Resource Server
+ - Auth0
  - Spring AMQP + RabbitMQ
  - Spring Mail
  - Spring Validation
@@ -76,25 +75,7 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
 
 #### 2. Configure o **application.properties**:
     
-    Defina as variaveis de ambientes:
-
-    - DB_URL
-    - DB_DATABASE
-    - DB_USER
-    - DB_PASS
-    - MQ_USER
-    - MQ_PASS
-    - PG_EMAIL
-    - PG_PASS
-    - MINIO_USER
-    - MINIO_PASS
-    - JWT_SECRET
-    - JWT_DURATION
-    - CLIENT_ID
-    - CLIENT_SECRET
-    - MAIL_USER
-    - MAIL_PASS
-    - FRONT_URL
+    Defina as variaveis de ambientes, do projeto e do docker.
 
 #### 3. Execute o docker compose
 
