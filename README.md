@@ -10,6 +10,7 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
  - PostgresSQL
  - Spring Security
  - Auth0
+ - Stripe
  - Spring AMQP + RabbitMQ
  - Spring Mail
  - Spring Validation
@@ -17,6 +18,7 @@ Uma API RESTful desenvolvida com **Spring Boot** para gerenciar um sistema de **
  - Thymeleaf
  - Lombok
  - Docker & Docker Compose
+ - Swagger
 
 ## 📁 Estrutura Inicial do Projeto
 
