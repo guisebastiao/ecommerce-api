@@ -7,7 +7,6 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.MailDTO;
 import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
-import com.guisebastiao.ecommerceapi.dto.request.auth.RefreshTokenRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
 import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
 import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
@@ -23,6 +22,7 @@ import com.guisebastiao.ecommerceapi.service.AuthService;
 import com.guisebastiao.ecommerceapi.service.RabbitMailService;
 import com.guisebastiao.ecommerceapi.util.CodeGenerator;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +36,7 @@ import org.thymeleaf.context.Context;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -230,8 +231,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public DefaultResponse<ClientSimpleResponse> refreshToken(RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) {
-        String refreshToken = refreshTokenRequest.refreshToken();
+    public DefaultResponse<ClientSimpleResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = this.findCookieValue(cookieNameRefreshToken, request);
         String email = jwtService.extractUsername(refreshToken);
         Client client = this.findClientByEmail(email);
 
@@ -296,5 +297,17 @@ public class AuthServiceImpl implements AuthService {
         cookie.setSecure(false);
         cookie.setPath("/");
         return cookie;
+    }
+
+    private String findCookieValue(String name, HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if(cookies == null) return null;
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> name.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }

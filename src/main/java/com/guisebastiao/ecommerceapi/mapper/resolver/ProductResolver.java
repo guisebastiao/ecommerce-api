@@ -3,6 +3,7 @@ package com.guisebastiao.ecommerceapi.mapper.resolver;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.domain.Review;
+import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,16 @@ import java.math.RoundingMode;
 public class ProductResolver {
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
     private AuthProvider clientAuthProvider;
 
     @Named("resolveDiscount")
     public BigDecimal resolveDiscount(Product product) {
-        if(product.getDiscount() == null) return null;
+        if(product.getDiscount() == null) {
+            return null;
+        }
 
         BigDecimal price = product.getPrice();
         Double percent = product.getDiscount().getPercent();
@@ -51,25 +57,53 @@ public class ProductResolver {
 
     @Named("resolveAlreadyReviewed")
     public Boolean resolveAlreadyReviewed(Product product) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) return false;
+        Client client = getAuthenticatedClient();
 
-        Client client = this.clientAuthProvider.getClientAuthenticated();
+        if(client == null) {
+            return false;
+        }
 
         return product.getReviews()
                 .stream()
                 .anyMatch(e -> e.getClient().getId().equals(client.getId()));
     }
 
+    @Named("resolveAlreadyCommented")
+    public Boolean resolveAlreadyCommented(Product product) {
+        Client client = getAuthenticatedClient();
+
+        if(client == null) {
+            return false;
+        }
+
+        return product.getComments().stream()
+                .anyMatch(e -> e.getClient().getId().equals(client.getId()));
+    }
+
+    @Named("resolveTotalComments")
+    public int resolveTotalComments(Product product) {
+        return this.productRepository.countCommentsByProduct(product.getId());
+    }
+
     @Named("resolveIsFavorite")
     public Boolean resolveIsFavorite(Product product) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) return false;
+        Client client = getAuthenticatedClient();
 
-        Client client = this.clientAuthProvider.getClientAuthenticated();
+        if(client == null) {
+            return false;
+        }
 
-        return product.getClientFavorites()
-                .stream()
+        return product.getClientFavorites().stream()
                 .anyMatch(e -> e.getClient().getId().equals(client.getId()));
+    }
+
+    private Client getAuthenticatedClient() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
+        return clientAuthProvider.getClientAuthenticated();
     }
 }

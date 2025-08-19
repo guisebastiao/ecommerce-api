@@ -3,11 +3,11 @@ package com.guisebastiao.ecommerceapi.controller;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
-import com.guisebastiao.ecommerceapi.dto.request.auth.RefreshTokenRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
 import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
 import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
 import com.guisebastiao.ecommerceapi.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,8 +53,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest, HttpServletResponse httpResponse) {
-        DefaultResponse<ClientSimpleResponse> response = this.authService.refreshToken(refreshTokenRequest, httpResponse);
+    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> refreshToken(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        DefaultResponse<ClientSimpleResponse> response = this.authService.refreshToken(httpRequest, httpResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

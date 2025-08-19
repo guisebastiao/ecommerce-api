@@ -104,6 +104,7 @@ public class CartServiceImpl implements CartService {
         cartItem.setQuantity(cartItem.getQuantity() - 1);
 
         if(cartItem.getQuantity() <= 0){
+            cartItem.getCart().getItems().remove(cartItem);
             this.cartItemRepository.delete(cartItem);
         } else {
             this.cartItemRepository.save(cartItem);
@@ -117,15 +118,17 @@ public class CartServiceImpl implements CartService {
     public DefaultResponse<Void> removeAllProductsFromCart(String cartItemId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
-        System.out.println(cartItemId);
-
         CartItem cartItem = this.findCartItem(cartItemId);
 
         if(!cartItem.getCart().getClient().getId().equals(client.getId())){
             throw new UnauthorizedException("Você não tem permissão para remover o produto do carrinho");
         }
 
+        Cart cart = cartItem.getCart();
+        cart.getItems().remove(cartItem);
         this.cartItemRepository.delete(cartItem);
+
+        this.cartRepository.save(cart);
 
         return new DefaultResponse<Void>(true, "Produto removido do carrinho", null);
     }

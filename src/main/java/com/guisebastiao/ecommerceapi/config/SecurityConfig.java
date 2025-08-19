@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -48,7 +49,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/**", "/recover-password/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/**", "/recover-password/**", "stripe/webhook").permitAll()
                         .requestMatchers(HttpMethod.POST, "/product/**", "category/**", "/discount/**", "/product-picture/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/product/**", "category/**", "/discount/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/product/**", "category/**", "/discount/**", "/product-picture/**").hasRole("ADMIN")

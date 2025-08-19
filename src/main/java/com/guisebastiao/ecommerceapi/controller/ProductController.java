@@ -1,6 +1,8 @@
 package com.guisebastiao.ecommerceapi.controller;
 
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.request.discount.ApplyDiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.request.product.ProductRequest;
 import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
@@ -12,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
 
     @Autowired
@@ -33,6 +35,12 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<DefaultResponse<ProductResponse>> findProductById(@PathVariable String productId) {
         DefaultResponse<ProductResponse> response = this.productService.findProductById(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<DefaultResponse<PageResponse<ProductResponse>>> findAllProducts(@RequestParam String search, @RequestParam String category, @Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<ProductResponse>> response = this.productService.findAllProducts(search, category, pagination);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

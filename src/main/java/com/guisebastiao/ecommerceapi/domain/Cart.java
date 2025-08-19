@@ -22,6 +22,6 @@ public class Cart extends Auditable {
     @JoinColumn(name = "client_id", nullable = false, unique = true)
     private Client client;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<CartItem> items;
 }

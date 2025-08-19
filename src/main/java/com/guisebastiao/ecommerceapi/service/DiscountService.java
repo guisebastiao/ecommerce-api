@@ -4,10 +4,12 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.request.discount.DiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.response.discount.DiscountResponse;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 
 public interface DiscountService {
     DefaultResponse<Void> createDiscount(DiscountRequest discountRequest);
     DefaultResponse<PageResponse<DiscountResponse>> findAllDiscounts(int offset, int limit);
+    DefaultResponse<PageResponse<ProductResponse>> findAllProductsWithDiscounts(String discountId, int offset, int limit);
     DefaultResponse<Void> updateDiscount(String discountId, DiscountRequest discountRequest);
     DefaultResponse<Void> deleteDiscount(String discountId);
 

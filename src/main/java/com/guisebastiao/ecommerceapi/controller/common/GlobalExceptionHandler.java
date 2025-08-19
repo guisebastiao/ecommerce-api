@@ -64,7 +64,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FailedUploadFileException.class)
     public ResponseEntity<DefaultResponse<Void>> handleFailedUploadFileException(FailedUploadFileException e) {
         logger.error("Error uploading file", e);
-        DefaultResponse<Void> response = new DefaultResponse(false, e.getMessage(), null);
+        DefaultResponse<Void> response = new DefaultResponse<Void>(false, e.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
+    }
+
+    @ExceptionHandler(BadGatewayException.class)
+    public ResponseEntity<DefaultResponse<Void>> handlePaymentFailureException(BadGatewayException e) {
+        logger.error("Error bad gateway", e);
+        DefaultResponse<Void> response = new DefaultResponse<Void>(false, e.getMessage(), null);
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
     }
 

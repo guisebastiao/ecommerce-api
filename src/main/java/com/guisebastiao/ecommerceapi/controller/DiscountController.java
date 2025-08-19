@@ -5,6 +5,7 @@ import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.request.discount.DiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.response.discount.DiscountResponse;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 import com.guisebastiao.ecommerceapi.service.DiscountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/discount")
+@RequestMapping("/discounts")
 public class DiscountController {
 
     @Autowired
@@ -28,6 +29,12 @@ public class DiscountController {
     @GetMapping
     public ResponseEntity<DefaultResponse<PageResponse<DiscountResponse>>> findAllDiscounts(@Valid PaginationFilter pagination) {
         DefaultResponse<PageResponse<DiscountResponse>> response = this.discountService.findAllDiscounts(pagination.offset(), pagination.limit());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{discountId}/products")
+    public ResponseEntity<DefaultResponse<PageResponse<ProductResponse>>> findAllProductsWithDiscounts(@PathVariable String discountId, @Valid PaginationFilter pagination) {
+        DefaultResponse<PageResponse<ProductResponse>> response = this.discountService.findAllProductsWithDiscounts(discountId, pagination.offset(), pagination.limit());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

@@ -1,13 +1,16 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.Discount;
+import com.guisebastiao.ecommerceapi.domain.Product;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.request.discount.DiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.response.discount.DiscountResponse;
+import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.mapper.DiscountMapper;
+import com.guisebastiao.ecommerceapi.mapper.ProductMapper;
 import com.guisebastiao.ecommerceapi.repository.DiscountRepository;
 import com.guisebastiao.ecommerceapi.service.DiscountService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
@@ -29,6 +32,9 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Autowired
     private DiscountMapper discountMapper;
+
+    @Autowired
+    private ProductMapper productMapper;
 
     @Override
     public DefaultResponse<Void> createDiscount(DiscountRequest discountRequest) {
@@ -52,6 +58,27 @@ public class DiscountServiceImpl implements DiscountService {
         PageResponse<DiscountResponse> data = new PageResponse<DiscountResponse>(dataResponse, paging);
 
         return new DefaultResponse<PageResponse<DiscountResponse>>(true, "Descontos retornados com sucesso", data);
+    }
+
+    @Override
+    public DefaultResponse<PageResponse<ProductResponse>> findAllProductsWithDiscounts(String discountId, int offset, int limit) {
+        boolean existDiscount = this.discountRepository.existsByDiscountId(UUIDConverter.toUUID(discountId));
+
+        if(!existDiscount) {
+            throw new EntityNotFoundException("Desconto não encontrado");
+        }
+
+        Pageable pageable = PageRequest.of(offset, limit);
+
+        Page<Product> resultPage = this.discountRepository.findAllProductByDiscountId(UUIDConverter.toUUID(discountId), pageable);
+
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+
+        List<ProductResponse> dataResponse = resultPage.getContent().stream().map(this.productMapper::toDTO).toList();
+
+        PageResponse<ProductResponse> data = new PageResponse<ProductResponse>(dataResponse, paging);
+
+        return new DefaultResponse<PageResponse<ProductResponse>>(true, "Produtos com desconto retornados com sucesso", data);
     }
 
     @Override

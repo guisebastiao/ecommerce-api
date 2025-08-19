@@ -6,7 +6,7 @@ import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface CartItemMapper {
     CartItem toEntity(CartItemRequest cartItemRequestDTO);
 

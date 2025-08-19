@@ -14,9 +14,11 @@ public interface ProductMapper {
     @Mapping(source = "id", target = "productId")
     @Mapping(source = "price", target = "originalPrice")
     @Mapping(target = "price", source = ".", qualifiedByName = "resolveDiscount")
+    @Mapping(target = "totalComments", source = ".", qualifiedByName = "resolveTotalComments")
     @Mapping(target = "haveDiscount", source = ".", qualifiedByName = "resolveHaveDiscount")
     @Mapping(target = "reviewRating", source = ".", qualifiedByName = "resolveReviewRating")
     @Mapping(target = "alreadyReviewed", source = ".", qualifiedByName = "resolveAlreadyReviewed")
+    @Mapping(target = "alreadyCommented", source = ".", qualifiedByName = "resolveAlreadyCommented")
     @Mapping(target = "isFavorite", source = ".", qualifiedByName = "resolveIsFavorite")
     ProductResponse toDTO(Product product);
 }
