@@ -21,4 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.product.id = :productId")
     int countCommentsByProduct(@Param("productId") UUID productId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.product.id = :productId")
+    int countReviewsByProduct(@Param("productId") UUID productId);
 }

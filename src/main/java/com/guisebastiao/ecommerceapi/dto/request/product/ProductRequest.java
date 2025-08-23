@@ -1,8 +1,12 @@
 package com.guisebastiao.ecommerceapi.dto.request.product;
 
+import com.guisebastiao.ecommerceapi.validation.FileCotentType.FileContentType;
+import com.guisebastiao.ecommerceapi.validation.FileSize.FileSize;
 import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ProductRequest(
         @NotBlank(message = "Informe o nome do produto")
@@ -22,5 +26,10 @@ public record ProductRequest(
         Integer stock,
 
         @NotBlank(message = "Informe a categoria do produto")
-        String categoryId
+        String categoryId,
+
+        @NotNull(message = "Uma imagem do produto é obrigatória")
+        @FileSize(max = 5 * 1024 * 1024, message = "A imagem do produto deve ter no máximo 5MB")
+        @FileContentType(allowed = {"image/jpeg", "image/jpg", "image/png"}, message = "Arquivo não permitido")
+        List<MultipartFile> files
 ) { }

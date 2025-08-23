@@ -1,34 +1,38 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
-import com.guisebastiao.ecommerceapi.domain.Category;
-import com.guisebastiao.ecommerceapi.domain.Comment;
-import com.guisebastiao.ecommerceapi.domain.Discount;
-import com.guisebastiao.ecommerceapi.domain.Product;
+import com.guisebastiao.ecommerceapi.config.MinioConfig;
+import com.guisebastiao.ecommerceapi.domain.*;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.request.discount.ApplyDiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.request.product.ProductRequest;
-import com.guisebastiao.ecommerceapi.dto.response.comment.CommentResponse;
 import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
+import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
+import com.guisebastiao.ecommerceapi.exception.FailedUploadFileException;
 import com.guisebastiao.ecommerceapi.mapper.ProductMapper;
 import com.guisebastiao.ecommerceapi.repository.CategoryRepository;
 import com.guisebastiao.ecommerceapi.repository.DiscountRepository;
+import com.guisebastiao.ecommerceapi.repository.ProductPictureRepository;
 import com.guisebastiao.ecommerceapi.repository.ProductRepository;
 import com.guisebastiao.ecommerceapi.service.ProductService;
+import com.guisebastiao.ecommerceapi.util.CodeGenerator;
 import com.guisebastiao.ecommerceapi.util.LongConverter;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.List;
 
 @Service
@@ -36,6 +40,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductPictureRepository productPictureRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -46,15 +53,55 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private MinioClient minioClient;
+
+    @Autowired
+    private MinioConfig minioConfig;
+
+    @Autowired
+    private CodeGenerator codeGenerator;
+
     @Override
     @Transactional
     public DefaultResponse<Void> createProduct(ProductRequest productRequest) {
         Category category = this.findCategory(productRequest.categoryId());
 
+        List<MultipartFile> files = productRequest.files();
+        if (files.size() > 20) {
+            throw new BadRequestException("Um produto pode ter no máximo 20 imagens");
+        }
+
         Product product = this.productMapper.toEntity(productRequest);
         product.setCategory(category);
 
-        this.productRepository.save(product);
+        Product savedProduct = this.productRepository.save(product);
+
+        List<ProductPicture> productPictures = files.stream().map(file -> {
+            String objectId = this.codeGenerator.generateToken();
+            String contentType = file.getContentType();
+
+            try (InputStream inputStream = file.getInputStream()) {
+                this.minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(minioConfig.getMinioBucket())
+                                .object(minioConfig.getProductPicturesFolder() + objectId)
+                                .stream(inputStream, file.getSize(), -1)
+                                .contentType(contentType)
+                                .build()
+                );
+            } catch (Exception e) {
+                throw new FailedUploadFileException("Erro ao enviar imagem do produto", e);
+            }
+
+            ProductPicture picture = new ProductPicture();
+            picture.setObjectId(objectId);
+            picture.setProduct(savedProduct);
+            return picture;
+        }).toList();
+
+        this.productPictureRepository.saveAll(productPictures);
+
         return new DefaultResponse<Void>(true, "Produto criado com sucesso", null);
     }
 

@@ -16,6 +16,7 @@ public record ProductResponse(
         BigDecimal price,
         int stock,
         int totalComments,
+        int totalReviews,
         Boolean available,
         Boolean haveDiscount,
         Boolean alreadyReviewed,

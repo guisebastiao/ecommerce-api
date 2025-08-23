@@ -85,6 +85,11 @@ public class ProductResolver {
         return this.productRepository.countCommentsByProduct(product.getId());
     }
 
+    @Named("resolveTotalReviews")
+    public int resolveTotalReviews(Product product) {
+        return this.productRepository.countReviewsByProduct(product.getId());
+    }
+
     @Named("resolveIsFavorite")
     public Boolean resolveIsFavorite(Product product) {
         Client client = getAuthenticatedClient();

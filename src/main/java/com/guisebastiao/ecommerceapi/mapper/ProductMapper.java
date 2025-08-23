@@ -15,6 +15,7 @@ public interface ProductMapper {
     @Mapping(source = "price", target = "originalPrice")
     @Mapping(target = "price", source = ".", qualifiedByName = "resolveDiscount")
     @Mapping(target = "totalComments", source = ".", qualifiedByName = "resolveTotalComments")
+    @Mapping(target = "totalReviews", source = ".", qualifiedByName = "resolveTotalReviews")
     @Mapping(target = "haveDiscount", source = ".", qualifiedByName = "resolveHaveDiscount")
     @Mapping(target = "reviewRating", source = ".", qualifiedByName = "resolveReviewRating")
     @Mapping(target = "alreadyReviewed", source = ".", qualifiedByName = "resolveAlreadyReviewed")

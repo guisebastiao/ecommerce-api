@@ -10,6 +10,7 @@ import com.guisebastiao.ecommerceapi.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<DefaultResponse<Void>> createProduct(@RequestBody @Valid ProductRequest productRequest) {
+    public ResponseEntity<DefaultResponse<Void>> createProduct(@ModelAttribute @Valid ProductRequest productRequest) {
         DefaultResponse<Void> response = this.productService.createProduct(productRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
