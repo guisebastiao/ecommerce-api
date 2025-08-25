@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public DefaultResponse<PageResponse<CommentResponse>> findAllComments(String productId, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
 
         Page<Comment> resultPage = this.commentRepository.findAll(pageable);
 

@@ -4,7 +4,7 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
-import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
+import com.guisebastiao.ecommerceapi.dto.response.auth.ActiveLoginResponse;
 import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
 import com.guisebastiao.ecommerceapi.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,8 +29,8 @@ public class AuthController {
     }
 
     @PostMapping("/active-login")
-    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> activeLogin(@RequestBody @Valid ActiveLoginRequest activeLoginRequest, HttpServletResponse httpResponse) {
-        DefaultResponse<ClientSimpleResponse> response = this.authService.activeLogin(activeLoginRequest, httpResponse);
+    public ResponseEntity<DefaultResponse<ActiveLoginResponse>> activeLogin(@RequestBody @Valid ActiveLoginRequest activeLoginRequest, HttpServletResponse httpResponse) {
+        DefaultResponse<ActiveLoginResponse> response = this.authService.activeLogin(activeLoginRequest, httpResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -53,8 +53,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> refreshToken(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        DefaultResponse<ClientSimpleResponse> response = this.authService.refreshToken(httpRequest, httpResponse);
+    public ResponseEntity<DefaultResponse<ActiveLoginResponse>> refreshToken(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        DefaultResponse<ActiveLoginResponse> response = this.authService.refreshToken(httpRequest, httpResponse);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

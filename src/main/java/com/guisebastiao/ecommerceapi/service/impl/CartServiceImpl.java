@@ -78,7 +78,7 @@ public class CartServiceImpl implements CartService {
     public DefaultResponse<PageResponse<CartItemResponse>> findAllCartItems(int offset, int limit) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
 
         Page<CartItem> resultPage = this.cartItemRepository.findAllByClientId(client.getId(), pageable);
 

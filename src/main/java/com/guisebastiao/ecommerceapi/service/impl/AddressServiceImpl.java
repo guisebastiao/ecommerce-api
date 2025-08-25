@@ -52,7 +52,7 @@ public class AddressServiceImpl implements AddressService {
     public DefaultResponse<PageResponse<AddressResponse>> findAllAddresses(int offset, int limit) {
         Client client = this.authProvider.getClientAuthenticated();
 
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset - 1, limit);
 
         Page<Address> resultPage = this.addressRepository.findAllByClientId(client.getId(), pageable);
 

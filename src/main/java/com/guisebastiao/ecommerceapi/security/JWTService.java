@@ -77,6 +77,11 @@ public class JWTService {
 
     }
 
+    public Instant extractExpiration(String token) {
+        DecodedJWT decodedJWT = JWT.decode(token);
+        return decodedJWT.getExpiresAt().toInstant();
+    }
+
     public boolean isExpired(String token) {
         DecodedJWT decodedJWT = JWT.decode(token);
         Date expiration = decodedJWT.getExpiresAt();

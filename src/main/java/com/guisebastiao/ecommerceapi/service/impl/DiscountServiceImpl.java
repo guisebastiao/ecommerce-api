@@ -47,7 +47,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public DefaultResponse<PageResponse<DiscountResponse>> findAllDiscounts(int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("name").ascending());
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("name").ascending());
 
         Page<Discount> resultPage = this.discountRepository.findAll(pageable);
 
@@ -68,7 +68,7 @@ public class DiscountServiceImpl implements DiscountService {
             throw new EntityNotFoundException("Desconto não encontrado");
         }
 
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset - 1, limit);
 
         Page<Product> resultPage = this.discountRepository.findAllProductByDiscountId(UUIDConverter.toUUID(discountId), pageable);
 

@@ -50,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public DefaultResponse<PageResponse<CategoryResponse>> findAllCategories(int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("name").ascending());
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("name").ascending());
 
         Page<Category> resultPage = this.categoryRepository.findAll(pageable);
 

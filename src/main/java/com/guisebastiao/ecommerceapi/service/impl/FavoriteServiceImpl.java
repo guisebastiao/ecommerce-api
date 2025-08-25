@@ -72,7 +72,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     public DefaultResponse<PageResponse<ProductResponse>> findAllFavorites(int offset, int limit) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
 
         Page<Product> resultPage = this.favoriteRepository.findAllProductsFavoritesByClientId(client.getId(), pageable);
 

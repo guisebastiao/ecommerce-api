@@ -131,7 +131,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public DefaultResponse<PageResponse<ProductResponse>> findAllProducts(String search, String category, PaginationFilter pagination) {
-        Pageable pageable = PageRequest.of(pagination.offset(), pagination.limit());
+        Pageable pageable = PageRequest.of(pagination.offset() - 1, pagination.limit());
 
         Page<Product> resultPage = this.productRepository.findAllBySearchAndCategory(search, category, pageable);
 

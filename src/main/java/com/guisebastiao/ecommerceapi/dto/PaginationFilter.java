@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record PaginationFilter(
         @NotNull(message = "O número da página é obrigatório")
-        @Min(value = 0, message = "O número da página deve ser zero ou maior")
+        @Min(value = 1, message = "O número da página deve ser maior que zero")
         Integer offset,
 
         @NotNull(message = "A quantidade de itens é obrigatória")

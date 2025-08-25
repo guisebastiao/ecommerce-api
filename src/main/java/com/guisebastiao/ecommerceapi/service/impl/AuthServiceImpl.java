@@ -8,6 +8,7 @@ import com.guisebastiao.ecommerceapi.dto.MailDTO;
 import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
+import com.guisebastiao.ecommerceapi.dto.response.auth.ActiveLoginResponse;
 import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
 import com.guisebastiao.ecommerceapi.dto.response.auth.LoginResponse;
 import com.guisebastiao.ecommerceapi.enums.AccountStatus;
@@ -122,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public DefaultResponse<ClientSimpleResponse> activeLogin(ActiveLoginRequest activeLoginRequest, HttpServletResponse response) {
+    public DefaultResponse<ActiveLoginResponse> activeLogin(ActiveLoginRequest activeLoginRequest, HttpServletResponse response) {
         LoginPending loginPending = this.loginPendingRepository.findByCode(activeLoginRequest.code())
                 .orElseThrow(() -> new BadRequestException("Algo deu errado ao completar seu login"));
 
@@ -146,13 +147,15 @@ public class AuthServiceImpl implements AuthService {
 
         ClientSimpleResponse clientSimpleResponse = this.clientMapper.toSimpleDTO(client);
 
+        ActiveLoginResponse activeLoginResponse = new ActiveLoginResponse(jwtService.extractExpiration(accessToken), jwtService.extractExpiration(refreshToken), clientSimpleResponse);
+
         Cookie accessTokenCookie = this.generateCookie(this.cookieNameAccessToken, accessToken);
         Cookie refreshTokenCookie = this.generateCookie(this.cookieNameRefreshToken, refreshToken);
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
 
-        return new DefaultResponse<ClientSimpleResponse>(true,  "Login efetuado com sucesso", clientSimpleResponse);
+        return new DefaultResponse<ActiveLoginResponse>(true,  "Login efetuado com sucesso", activeLoginResponse);
     }
 
     @Override
@@ -231,7 +234,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public DefaultResponse<ClientSimpleResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    public DefaultResponse<ActiveLoginResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = this.findCookieValue(cookieNameRefreshToken, request);
         String email = jwtService.extractUsername(refreshToken);
         Client client = this.findClientByEmail(email);
@@ -248,11 +251,13 @@ public class AuthServiceImpl implements AuthService {
 
         ClientSimpleResponse clientSimpleResponse = this.clientMapper.toSimpleDTO(client);
 
+        ActiveLoginResponse activeLoginResponse = new ActiveLoginResponse(jwtService.extractExpiration(newAccessToken), jwtService.extractExpiration(refreshToken), clientSimpleResponse);
+
         Cookie accessTokenCookie = this.generateCookie(this.cookieNameAccessToken, newAccessToken);
 
         response.addCookie(accessTokenCookie);
 
-        return new DefaultResponse<ClientSimpleResponse>(true, "Acesso renovado com sucesso", clientSimpleResponse);
+        return new DefaultResponse<ActiveLoginResponse>(true, "Acesso renovado com sucesso", activeLoginResponse);
     }
 
     private Client findClientByEmail(String email) {

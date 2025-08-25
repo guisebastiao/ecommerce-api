@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,7 +65,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public DefaultResponse<PageResponse<ReviewResponse>> findAllReviews(String productId, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
 
         Page<Review> resultPage = this.reviewRepository.findAll(pageable);
 
