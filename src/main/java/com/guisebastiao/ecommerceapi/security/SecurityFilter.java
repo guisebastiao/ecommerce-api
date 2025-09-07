@@ -31,6 +31,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String token = this.recoverToken(request);
+
+        if(token == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String subject = this.jwtService.validateToken(token);
 
         if(subject != null) {

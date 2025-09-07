@@ -86,7 +86,7 @@ public class RecoverPasswordServiceImpl implements RecoverPasswordService {
 
         this.recoverPasswordRepository.delete(recoverPassword);
 
-        return new DefaultResponse(true, "Sua senha foi recuperada com sucesso", null);
+        return new DefaultResponse<Void>(true, "Sua senha foi recuperada com sucesso", null);
     }
 
     private Client findClientByEmail(String email) {

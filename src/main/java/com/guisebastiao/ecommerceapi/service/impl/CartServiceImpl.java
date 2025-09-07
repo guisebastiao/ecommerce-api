@@ -8,6 +8,7 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
+import com.guisebastiao.ecommerceapi.dto.request.cart.UpdateCartItemRequest;
 import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
@@ -89,6 +90,21 @@ public class CartServiceImpl implements CartService {
         PageResponse<CartItemResponse> data = new PageResponse<CartItemResponse>(dataResponse, paging);
 
         return new DefaultResponse<PageResponse<CartItemResponse>>(true, "Items do carrinho retornados com sucesso", data);
+    }
+
+    @Override
+    public DefaultResponse<Void> updateQuantity(String cartItemId, UpdateCartItemRequest updateCartItemRequest) {
+        Client client = this.clientAuthProvider.getClientAuthenticated();
+        CartItem cartItem = this.findCartItem(cartItemId);
+
+        if(!cartItem.getCart().getClient().getId().equals(client.getId())){
+            throw new UnauthorizedException("Você não tem permissão para remover o produto do carrinho");
+        }
+
+        cartItem.setQuantity(updateCartItemRequest.quantity());
+        this.cartItemRepository.save(cartItem);
+
+        return new DefaultResponse<Void>(true, "Quantidade do produto foi alterada com sucesso", null);
     }
 
     @Override

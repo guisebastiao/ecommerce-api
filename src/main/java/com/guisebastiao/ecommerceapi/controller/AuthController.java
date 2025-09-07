@@ -2,6 +2,7 @@ package com.guisebastiao.ecommerceapi.controller;
 
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveRegisterRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
 import com.guisebastiao.ecommerceapi.dto.response.auth.ActiveLoginResponse;
@@ -40,9 +41,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/active-account/{verificationCode}")
-    public ResponseEntity<DefaultResponse<Void>> activeAccount(@PathVariable String verificationCode) {
-        DefaultResponse<Void> response = this.authService.activeAccount(verificationCode);
+    @PostMapping("/active-account")
+    public ResponseEntity<DefaultResponse<Void>> activeAccount(@RequestBody @Valid ActiveRegisterRequest activeRegisterRequest) {
+        DefaultResponse<Void> response = this.authService.activeAccount(activeRegisterRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

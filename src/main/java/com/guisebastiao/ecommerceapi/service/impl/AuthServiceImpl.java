@@ -6,6 +6,7 @@ import com.guisebastiao.ecommerceapi.domain.LoginPending;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.MailDTO;
 import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveLoginRequest;
+import com.guisebastiao.ecommerceapi.dto.request.auth.ActiveRegisterRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.LoginRequest;
 import com.guisebastiao.ecommerceapi.dto.request.auth.RegisterRequest;
 import com.guisebastiao.ecommerceapi.dto.response.auth.ActiveLoginResponse;
@@ -204,11 +205,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public DefaultResponse<Void> activeAccount(String verificationCode) {
-        AccountPending accountPending = this.accountPendingRepository.findByVerificationCode(verificationCode)
+    public DefaultResponse<Void> activeAccount(ActiveRegisterRequest activeRegisterRequest) {
+        AccountPending accountPending = this.accountPendingRepository.findByVerificationCode(activeRegisterRequest.verificationCode())
                 .orElseThrow(() -> new BadRequestException("Código de veficação expirado"));
 
-        if(!accountPending.getVerificationCode().equals(verificationCode)){
+        if(!accountPending.getVerificationCode().equals(activeRegisterRequest.verificationCode())){
             throw new BadRequestException("Código de veficação inválido");
         }
 
@@ -236,6 +237,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public DefaultResponse<ActiveLoginResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = this.findCookieValue(cookieNameRefreshToken, request);
+
+        if(refreshToken == null) {
+            throw new BadRequestException("Refresh token não encontrado");
+        }
+
         String email = jwtService.extractUsername(refreshToken);
         Client client = this.findClientByEmail(email);
 

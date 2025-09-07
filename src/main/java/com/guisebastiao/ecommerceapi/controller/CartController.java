@@ -4,6 +4,7 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
+import com.guisebastiao.ecommerceapi.dto.request.cart.UpdateCartItemRequest;
 import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
 import com.guisebastiao.ecommerceapi.service.CartService;
 import jakarta.validation.Valid;
@@ -28,6 +29,12 @@ public class CartController {
     @GetMapping
     public ResponseEntity<DefaultResponse<PageResponse<CartItemResponse>>> findAllCartItems(@Valid PaginationFilter pagination) {
         DefaultResponse<PageResponse<CartItemResponse>> response = this.cartService.findAllCartItems(pagination.offset(), pagination.limit());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
+    @PutMapping("/{cartItemId}")
+    public ResponseEntity<DefaultResponse<Void>> updateQuantity(@PathVariable String cartItemId, @RequestBody @Valid UpdateCartItemRequest updateCartItemRequest) {
+        DefaultResponse<Void> response = this.cartService.updateQuantity(cartItemId, updateCartItemRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
