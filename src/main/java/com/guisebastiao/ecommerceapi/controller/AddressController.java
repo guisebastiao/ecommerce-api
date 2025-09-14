@@ -1,8 +1,6 @@
 package com.guisebastiao.ecommerceapi.controller;
 
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
-import com.guisebastiao.ecommerceapi.dto.PageResponse;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.request.address.AddressRequest;
 import com.guisebastiao.ecommerceapi.dto.response.address.AddressResponse;
 import com.guisebastiao.ecommerceapi.service.AddressService;
@@ -11,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/addresses")
@@ -26,8 +26,8 @@ public class AddressController {
     }
 
     @GetMapping
-    public ResponseEntity<DefaultResponse<PageResponse<AddressResponse>>> findAllAddresses(@Valid PaginationFilter pagination) {
-        DefaultResponse<PageResponse<AddressResponse>> response = this.addressService.findAllAddresses(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<List<AddressResponse>>> findAllAddresses() {
+        DefaultResponse<List<AddressResponse>> response = this.addressService.findAllAddresses();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

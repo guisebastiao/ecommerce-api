@@ -3,8 +3,6 @@ package com.guisebastiao.ecommerceapi.service.impl;
 import com.guisebastiao.ecommerceapi.domain.Address;
 import com.guisebastiao.ecommerceapi.domain.Client;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
-import com.guisebastiao.ecommerceapi.dto.PageResponse;
-import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.request.address.AddressRequest;
 import com.guisebastiao.ecommerceapi.dto.response.address.AddressResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
@@ -16,9 +14,6 @@ import com.guisebastiao.ecommerceapi.service.AddressService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,20 +44,14 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public DefaultResponse<PageResponse<AddressResponse>> findAllAddresses(int offset, int limit) {
+    public DefaultResponse<List<AddressResponse>> findAllAddresses() {
         Client client = this.authProvider.getClientAuthenticated();
 
-        Pageable pageable = PageRequest.of(offset - 1, limit);
+        List<Address> addresses = this.addressRepository.findAllByClientId(client.getId());
 
-        Page<Address> resultPage = this.addressRepository.findAllByClientId(client.getId(), pageable);
+        List<AddressResponse> data = addresses.stream().map(this.addressMapper::toDto).toList();
 
-        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
-
-        List<AddressResponse> dataResponse = resultPage.getContent().stream().map(this.addressMapper::toDto).toList();
-
-        PageResponse<AddressResponse> data = new PageResponse<AddressResponse>(dataResponse, paging);
-
-        return new DefaultResponse<PageResponse<AddressResponse>>(true, "Endereços retornados com sucesso", data);
+        return new DefaultResponse<List<AddressResponse>>(true, "Endereços retornados com sucesso", data);
     }
 
     @Override

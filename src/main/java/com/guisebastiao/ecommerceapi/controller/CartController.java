@@ -1,11 +1,9 @@
 package com.guisebastiao.ecommerceapi.controller;
 
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
-import com.guisebastiao.ecommerceapi.dto.PageResponse;
-import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
 import com.guisebastiao.ecommerceapi.dto.request.cart.UpdateCartItemRequest;
-import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
+import com.guisebastiao.ecommerceapi.dto.response.cart.CartResponse;
 import com.guisebastiao.ecommerceapi.service.CartService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +25,8 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<DefaultResponse<PageResponse<CartItemResponse>>> findAllCartItems(@Valid PaginationFilter pagination) {
-        DefaultResponse<PageResponse<CartItemResponse>> response = this.cartService.findAllCartItems(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<CartResponse>> findAllCartItems() {
+        DefaultResponse<CartResponse> response = this.cartService.findAllCartItems();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     

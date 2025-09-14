@@ -2,7 +2,10 @@ package com.guisebastiao.ecommerceapi.service.impl;
 
 import com.guisebastiao.ecommerceapi.domain.*;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
+import com.guisebastiao.ecommerceapi.dto.PageResponse;
+import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.response.order.OrderResponse;
+import com.guisebastiao.ecommerceapi.dto.response.order.PaymentResponse;
 import com.guisebastiao.ecommerceapi.dto.request.order.OrderRequest;
 import com.guisebastiao.ecommerceapi.dto.request.order.PaymentRequest;
 import com.guisebastiao.ecommerceapi.enums.OrderStatus;
@@ -11,6 +14,7 @@ import com.guisebastiao.ecommerceapi.enums.PaymentStatus;
 import com.guisebastiao.ecommerceapi.exception.BadGatewayException;
 import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
+import com.guisebastiao.ecommerceapi.mapper.OrderMapper;
 import com.guisebastiao.ecommerceapi.repository.*;
 import com.guisebastiao.ecommerceapi.security.AuthProvider;
 import com.guisebastiao.ecommerceapi.service.OrderService;
@@ -19,6 +23,10 @@ import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -46,9 +54,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private AuthProvider authProvider;
 
+    @Autowired
+    private OrderMapper orderMapper;
+
     @Override
     @Transactional
-    public DefaultResponse<OrderResponse> createOrder(OrderRequest orderRequest) {
+    public DefaultResponse<PaymentResponse> createOrder(OrderRequest orderRequest) {
         try {
             Client client = authProvider.getClientAuthenticated();
             Cart cart = validateAndGetCart(client);
@@ -63,13 +74,30 @@ public class OrderServiceImpl implements OrderService {
 
             Order savedOrder = orderRepository.save(order);
 
-            OrderResponse response = buildOrderResponse(paymentIntentId, savedOrder);
+            PaymentResponse response = buildOrderResponse(paymentIntentId, savedOrder);
 
             return new DefaultResponse<>(true, "Pedido criado, aguardando pagamento", response);
 
         } catch (Exception e) {
             throw new BadGatewayException("Erro interno ao criar pedido", e);
         }
+    }
+
+    @Override
+    public DefaultResponse<PageResponse<OrderResponse>> findAllOrders(int offset, int limit) {
+        Client client = this.authProvider.getClientAuthenticated();
+
+        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
+
+        Page<Order> resultPage = this.orderRepository.findAllByClientId(client.getId(), pageable);
+
+        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+
+        List<OrderResponse> dataResponse = resultPage.getContent().stream().map(this.orderMapper::toDTO).toList();
+
+        PageResponse<OrderResponse> data = new PageResponse<OrderResponse>(dataResponse, paging);
+
+        return new DefaultResponse<PageResponse<OrderResponse>>(true, "Pedidos retornados com sucesso", data);
     }
 
     @Override
@@ -85,7 +113,6 @@ public class OrderServiceImpl implements OrderService {
             );
 
             return handlePaymentResult(order, paymentStatus);
-
         } catch (Exception e) {
             throw new BadGatewayException("Erro interno ao processar pagamento", e);
         }
@@ -145,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
     private Order buildOrder(Client client, Cart cart) {
         Order order = new Order();
         order.setClient(client);
-        order.setOrderStatus(OrderStatus.PENDING);
+        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         order.setOrderNumber(generateOrderNumber());
         order.setPaymentMethod(PaymentMethod.CARD);
 
@@ -185,9 +212,9 @@ public class OrderServiceImpl implements OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private OrderResponse buildOrderResponse(String paymentIntentId, Order order) {
+    private PaymentResponse buildOrderResponse(String paymentIntentId, Order order) {
         String clientSecret = stripePaymentService.getClientSecret(paymentIntentId);
-        return new OrderResponse(clientSecret, paymentIntentId, order.getId());
+        return new PaymentResponse(clientSecret, paymentIntentId, order.getId());
     }
 
     private Order findOrderById(String orderId) {
@@ -207,10 +234,12 @@ public class OrderServiceImpl implements OrderService {
         return switch (paymentStatus) {
             case SUCCEEDED -> {
                 processSuccessfulPayment(order);
+                order.setOrderStatus(OrderStatus.PAID);
+                orderRepository.save(order);
                 yield new DefaultResponse<>(true, "Pagamento efetuado com sucesso", null);
             }
             case REQUIRES_ACTION -> {
-                order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
+                order.setOrderStatus(OrderStatus.FAILED);
                 orderRepository.save(order);
                 yield new DefaultResponse<>(false, "Pagamento requer ação adicional", null);
             }

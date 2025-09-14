@@ -1,15 +1,11 @@
 package com.guisebastiao.ecommerceapi.service.impl;
 
-import com.guisebastiao.ecommerceapi.domain.Cart;
-import com.guisebastiao.ecommerceapi.domain.CartItem;
-import com.guisebastiao.ecommerceapi.domain.Client;
-import com.guisebastiao.ecommerceapi.domain.Product;
+import com.guisebastiao.ecommerceapi.domain.*;
 import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
-import com.guisebastiao.ecommerceapi.dto.PageResponse;
-import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.request.cart.CartItemRequest;
 import com.guisebastiao.ecommerceapi.dto.request.cart.UpdateCartItemRequest;
 import com.guisebastiao.ecommerceapi.dto.response.cart.CartItemResponse;
+import com.guisebastiao.ecommerceapi.dto.response.cart.CartResponse;
 import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.UnauthorizedException;
@@ -22,12 +18,10 @@ import com.guisebastiao.ecommerceapi.service.CartService;
 import com.guisebastiao.ecommerceapi.util.UUIDConverter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -76,20 +70,20 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public DefaultResponse<PageResponse<CartItemResponse>> findAllCartItems(int offset, int limit) {
+    public DefaultResponse<CartResponse> findAllCartItems() {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
-        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
+        List<CartItem> cartItems = this.cartItemRepository.findAllByClientId(client.getId());
 
-        Page<CartItem> resultPage = this.cartItemRepository.findAllByClientId(client.getId(), pageable);
+        BigDecimal total = this.calculateTotal(cartItems);
+        BigDecimal subtotal = this.calculateSubtotal(cartItems);
+        BigDecimal discounts = this.calculateTotalDiscounts(cartItems);
 
-        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
+        List<CartItemResponse> cartItemsDTO = cartItems.stream().map(this.cartItemMapper::toDTO).toList();
 
-        List<CartItemResponse> dataResponse = resultPage.getContent().stream().map(this.cartItemMapper::toDTO).toList();
+        CartResponse data = new CartResponse(cartItemsDTO, total, subtotal, discounts);
 
-        PageResponse<CartItemResponse> data = new PageResponse<CartItemResponse>(dataResponse, paging);
-
-        return new DefaultResponse<PageResponse<CartItemResponse>>(true, "Items do carrinho retornados com sucesso", data);
+        return new DefaultResponse<CartResponse>(true, "Items do carrinho retornados com sucesso", data);
     }
 
     @Override
@@ -147,6 +141,41 @@ public class CartServiceImpl implements CartService {
         this.cartRepository.save(cart);
 
         return new DefaultResponse<Void>(true, "Produto removido do carrinho", null);
+    }
+
+    private BigDecimal calculateSubtotal(List<CartItem> cartItems) {
+        return cartItems.stream()
+                .map(item -> item.getProduct().getPrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateTotal(List<CartItem> cartItems) {
+        return cartItems.stream()
+                .map(item -> {
+                    BigDecimal originalPrice = item.getProduct().getPrice();
+                    Discount discount = item.getProduct().getDiscount();
+                    BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+
+                    BigDecimal unitPrice = originalPrice;
+
+                    if (discount != null && discount.getPercent() != null) {
+                        BigDecimal discountPercent = BigDecimal.valueOf(discount.getPercent());
+                        BigDecimal discountFactor = BigDecimal.ONE.subtract(
+                                discountPercent.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+                        );
+                        unitPrice = originalPrice.multiply(discountFactor);
+                    }
+
+                    return unitPrice.multiply(quantity);
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateTotalDiscounts(List<CartItem> cartItems) {
+        BigDecimal subtotal = calculateSubtotal(cartItems);
+        BigDecimal total = calculateTotal(cartItems);
+        return subtotal.subtract(total);
     }
 
     private Product findProduct(String productId) {
