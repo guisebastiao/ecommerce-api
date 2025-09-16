@@ -14,6 +14,6 @@ public class AuthProvider {
             return client;
         }
 
-        throw new UnauthorizedException("Autenticação inválida");
+        return null;
     }
 }

@@ -15,9 +15,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        DefaultResponse responseBody = new DefaultResponse(false, "Por favor, realize seu login", null);
+        DefaultResponse<Void> responseBody = new DefaultResponse<Void>(false, "Por favor, realize seu login", null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
+        response.setHeader("expired-authentication", Boolean.toString(true));
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseBody));
     }
 }

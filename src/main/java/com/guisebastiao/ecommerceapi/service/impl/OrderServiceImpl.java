@@ -93,7 +93,11 @@ public class OrderServiceImpl implements OrderService {
 
         Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 
-        List<OrderResponse> dataResponse = resultPage.getContent().stream().map(this.orderMapper::toDTO).toList();
+        List<OrderResponse> dataResponse = resultPage.getContent().stream().map(order -> {
+            BigDecimal total = this.calculateTotalAmount(order.getItems());
+            OrderResponse orderDTO = this.orderMapper.toDTO(order);
+            return new OrderResponse(orderDTO.orderId(), orderDTO.orderNumber(), orderDTO.orderStatus(), orderDTO.paymentMethod(), total, orderDTO.items());
+        }).toList();
 
         PageResponse<OrderResponse> data = new PageResponse<OrderResponse>(dataResponse, paging);
 

@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**","/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products/**", "/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**", "comments/**", "/reviews/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**", "/recover-password/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/recover-password/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/products/**", "categories/**", "/discounts/**", "/product-picture/**").hasRole("ADMIN")
@@ -70,6 +70,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(frontendUrl));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("expired-authentication"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
