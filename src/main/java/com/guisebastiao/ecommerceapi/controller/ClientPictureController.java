@@ -18,8 +18,8 @@ public class ClientPictureController {
     private ClientPictureService clientPictureService;
 
     @PostMapping
-    public ResponseEntity<DefaultResponse<Void>> createClientPicture(@ModelAttribute @Valid ClientPictureRequest clientPictureRequest) {
-        DefaultResponse<Void> response = this.clientPictureService.createClientPicture(clientPictureRequest);
+    public ResponseEntity<DefaultResponse<ClientPictureResponse>> createClientPicture(@ModelAttribute @Valid ClientPictureRequest clientPictureRequest) {
+        DefaultResponse<ClientPictureResponse> response = this.clientPictureService.createClientPicture(clientPictureRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

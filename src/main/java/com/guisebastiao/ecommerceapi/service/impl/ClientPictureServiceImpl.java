@@ -8,6 +8,7 @@ import com.guisebastiao.ecommerceapi.dto.request.clientPicture.ClientPictureRequ
 import com.guisebastiao.ecommerceapi.dto.response.clientPicture.ClientPictureResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.exception.FailedUploadFileException;
+import com.guisebastiao.ecommerceapi.mapper.ClientPictureMapper;
 import com.guisebastiao.ecommerceapi.repository.ClientPictureRepository;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
 import com.guisebastiao.ecommerceapi.security.AuthProvider;
@@ -47,10 +48,14 @@ public class ClientPictureServiceImpl implements ClientPictureService {
     @Autowired
     private AuthProvider clientAuthProvider;
 
+    @Autowired
+    private ClientPictureMapper clientPictureMapper;
+
     @Override
     @Transactional
-    public DefaultResponse<Void> createClientPicture(ClientPictureRequest clientPictureRequest) {
+    public DefaultResponse<ClientPictureResponse> createClientPicture(ClientPictureRequest clientPictureRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
+        ClientPictureResponse data = null;
 
         if(client.getClientPicture() != null) {
             try {
@@ -76,7 +81,8 @@ public class ClientPictureServiceImpl implements ClientPictureService {
         clientPicture.setClient(client);
         clientPicture.setObjectId(objectId);
 
-        this.clientPictureRepository.save(clientPicture);
+        ClientPicture savedClientPicture = this.clientPictureRepository.save(clientPicture);
+        data = this.clientPictureMapper.toDTO(savedClientPicture);
 
         try {
             InputStream inputStream = file.getInputStream();
@@ -93,7 +99,9 @@ public class ClientPictureServiceImpl implements ClientPictureService {
             throw new FailedUploadFileException("Ocorreu um erro inesperado ao enviar sua imagem de perfil", e);
         }
 
-        return new DefaultResponse<Void>(true, "Imagem de perfil foi salva com sucesso", null);
+
+
+        return new DefaultResponse<ClientPictureResponse>(true, "Imagem de perfil foi salva com sucesso", data);
     }
 
     @Override

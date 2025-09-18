@@ -60,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
     public DefaultResponse<PageResponse<CommentResponse>> findAllComments(String productId, int offset, int limit) {
         Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("createdAt").descending());
 
-        Page<Comment> resultPage = this.commentRepository.findAll(pageable);
+        Page<Comment> resultPage = this.commentRepository.findAllByCommentId(UUIDConverter.toUUID(productId), pageable);
 
         Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
 

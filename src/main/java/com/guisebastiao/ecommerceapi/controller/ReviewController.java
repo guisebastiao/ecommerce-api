@@ -31,9 +31,9 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/{reviewId}")
-    public ResponseEntity<DefaultResponse<Void>> deleteReview(@PathVariable String reviewId) {
-        DefaultResponse<Void> response = this.reviewService.deleteReview(reviewId);
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<DefaultResponse<Void>> deleteReview(@PathVariable String productId) {
+        DefaultResponse<Void> response = this.reviewService.deleteReview(productId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -5,6 +5,7 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.request.client.UpdateAccountRequest;
 import com.guisebastiao.ecommerceapi.dto.request.client.UpdatePasswordRequest;
 import com.guisebastiao.ecommerceapi.dto.response.client.ClientResponse;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
 import com.guisebastiao.ecommerceapi.exception.EntityNotFoundException;
 import com.guisebastiao.ecommerceapi.mapper.ClientMapper;
 import com.guisebastiao.ecommerceapi.repository.ClientRepository;
@@ -43,7 +44,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public DefaultResponse<Void> updateAccount(UpdateAccountRequest updateAccountRequest) {
+    public DefaultResponse<ClientSimpleResponse> updateAccount(UpdateAccountRequest updateAccountRequest) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
 
         client.setName(updateAccountRequest.name());
@@ -51,9 +52,10 @@ public class ClientServiceImpl implements ClientService {
         client.setPhone(updateAccountRequest.phone());
         client.setBirth(updateAccountRequest.birth());
 
-        this.clientRepository.save(client);
+        Client savedClient = this.clientRepository.save(client);
+        ClientSimpleResponse data = this.clientMapper.toSimpleDTO(savedClient);
 
-        return new DefaultResponse<Void>(true, "Sua conta foi atualizada com sucesso", null);
+        return new DefaultResponse<ClientSimpleResponse>(true, "Sua conta foi atualizada com sucesso", data);
     }
 
     @Override

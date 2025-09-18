@@ -8,5 +8,5 @@ import com.guisebastiao.ecommerceapi.dto.response.review.ReviewResponse;
 public interface ReviewService {
     DefaultResponse<Void> createReview(String productId, ReviewRequest reviewRequest);
     DefaultResponse<PageResponse<ReviewResponse>> findAllReviews(String productId, int offset, int limit);
-    DefaultResponse<Void> deleteReview(String reviewId);
+    DefaultResponse<Void> deleteReview(String productId);
 }

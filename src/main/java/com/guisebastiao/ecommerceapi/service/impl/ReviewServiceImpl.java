@@ -80,9 +80,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public DefaultResponse<Void> deleteReview(String reviewId) {
+    public DefaultResponse<Void> deleteReview(String productId) {
         Client client = this.clientAuthProvider.getClientAuthenticated();
-        Review review = this.findReview(reviewId);
+        Review review = this.reviewRepository.findByClientAndProduct(client.getId(), UUIDConverter.toUUID(productId));
 
         if(!review.getClient().getId().equals(client.getId())) {
             throw new UnauthorizedException("Você não tem permissão para excluir essa avaliação");

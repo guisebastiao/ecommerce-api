@@ -9,6 +9,8 @@ public record ClientSimpleResponse(
         UUID clientId,
         String name,
         String surname,
+        String phone,
+        String birth,
         Role role,
         ClientPictureResponse clientPicture
 ) { }

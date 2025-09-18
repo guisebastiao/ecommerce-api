@@ -4,6 +4,7 @@ import com.guisebastiao.ecommerceapi.dto.DefaultResponse;
 import com.guisebastiao.ecommerceapi.dto.request.client.UpdateAccountRequest;
 import com.guisebastiao.ecommerceapi.dto.request.client.UpdatePasswordRequest;
 import com.guisebastiao.ecommerceapi.dto.response.client.ClientResponse;
+import com.guisebastiao.ecommerceapi.dto.response.client.ClientSimpleResponse;
 import com.guisebastiao.ecommerceapi.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,8 @@ public class ClientController {
     }
 
     @PutMapping
-    public ResponseEntity<DefaultResponse<Void>> updateAccount(@RequestBody @Valid UpdateAccountRequest updateAccountRequest) {
-        DefaultResponse<Void> response = this.clientService.updateAccount(updateAccountRequest);
+    public ResponseEntity<DefaultResponse<ClientSimpleResponse>> updateAccount(@RequestBody @Valid UpdateAccountRequest updateAccountRequest) {
+        DefaultResponse<ClientSimpleResponse> response = this.clientService.updateAccount(updateAccountRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

@@ -5,7 +5,7 @@ import com.guisebastiao.ecommerceapi.dto.request.clientPicture.ClientPictureRequ
 import com.guisebastiao.ecommerceapi.dto.response.clientPicture.ClientPictureResponse;
 
 public interface ClientPictureService {
-    DefaultResponse<Void> createClientPicture(ClientPictureRequest clientPictureRequest);
+    DefaultResponse<ClientPictureResponse> createClientPicture(ClientPictureRequest clientPictureRequest);
     DefaultResponse<ClientPictureResponse> getClientPicture(String clientId);
     DefaultResponse<Void> deleteClientPicture();
 }
