@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/categories")
 public class CategoryController {
@@ -26,8 +28,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<DefaultResponse<PageResponse<CategoryResponse>>> findAllCategories(@Valid PaginationFilter pagination) {
-        DefaultResponse<PageResponse<CategoryResponse>> response = this.categoryService.findAllCategories(pagination.offset(), pagination.limit());
+    public ResponseEntity<DefaultResponse<List<CategoryResponse>>> findAllCategories() {
+        DefaultResponse<List<CategoryResponse>> response = this.categoryService.findAllCategories();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

@@ -5,6 +5,7 @@ import com.guisebastiao.ecommerceapi.dto.PageResponse;
 import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.request.discount.ApplyDiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.request.product.ProductRequest;
+import com.guisebastiao.ecommerceapi.dto.request.product.UpdateProductRequest;
 import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 import com.guisebastiao.ecommerceapi.service.ProductService;
 import jakarta.validation.Valid;
@@ -46,8 +47,8 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<DefaultResponse<Void>> updateProduct(@PathVariable String productId, @RequestBody @Valid ProductRequest productRequest) {
-        DefaultResponse<Void> response = this.productService.updateProduct(productId, productRequest);
+    public ResponseEntity<DefaultResponse<Void>> updateProduct(@PathVariable String productId, @RequestBody @Valid UpdateProductRequest updateProductRequest) {
+        DefaultResponse<Void> response = this.productService.updateProduct(productId, updateProductRequest);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

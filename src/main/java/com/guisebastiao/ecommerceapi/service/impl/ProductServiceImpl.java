@@ -8,6 +8,7 @@ import com.guisebastiao.ecommerceapi.dto.PaginationFilter;
 import com.guisebastiao.ecommerceapi.dto.Paging;
 import com.guisebastiao.ecommerceapi.dto.request.discount.ApplyDiscountRequest;
 import com.guisebastiao.ecommerceapi.dto.request.product.ProductRequest;
+import com.guisebastiao.ecommerceapi.dto.request.product.UpdateProductRequest;
 import com.guisebastiao.ecommerceapi.dto.response.product.ProductResponse;
 import com.guisebastiao.ecommerceapi.exception.BadRequestException;
 import com.guisebastiao.ecommerceapi.exception.ConflictEntityException;
@@ -146,15 +147,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public DefaultResponse<Void> updateProduct(String productId, ProductRequest productRequest) {
-        Category category = this.findCategory(productRequest.categoryId());
+    public DefaultResponse<Void> updateProduct(String productId, UpdateProductRequest updateProductRequest) {
+        Category category = this.findCategory(updateProductRequest.categoryId());
 
         Product product = this.findProduct(productId);
 
-        product.setName(productRequest.name());
-        product.setDescription(productRequest.description());
-        product.setPrice(productRequest.price());
-        product.setStock(productRequest.stock());
+        product.setName(updateProductRequest.name());
+        product.setDescription(updateProductRequest.description());
+        product.setPrice(updateProductRequest.price());
+        product.setStock(updateProductRequest.stock());
         product.setCategory(category);
 
         this.productRepository.save(product);

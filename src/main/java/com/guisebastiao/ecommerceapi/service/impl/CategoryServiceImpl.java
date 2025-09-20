@@ -49,18 +49,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public DefaultResponse<PageResponse<CategoryResponse>> findAllCategories(int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset - 1, limit, Sort.by("name").ascending());
+    public DefaultResponse<List<CategoryResponse>> findAllCategories() {
+        List<Category> categories = this.categoryRepository.findAll();
 
-        Page<Category> resultPage = this.categoryRepository.findAll(pageable);
+        List<CategoryResponse> data= categories.stream().map(this.categoryMapper::toDTO).toList();
 
-        Paging paging = new Paging(resultPage.getTotalElements(), resultPage.getTotalPages(), offset, limit);
-
-        List<CategoryResponse> dataResponse = resultPage.getContent().stream().map(this.categoryMapper::toDTO).toList();
-
-        PageResponse<CategoryResponse> data = new PageResponse<CategoryResponse>(dataResponse, paging);
-
-        return new DefaultResponse<PageResponse<CategoryResponse>>(true, "Categorias retornados com sucesso", data);
+        return new DefaultResponse<List<CategoryResponse>>(true, "Categorias retornados com sucesso", data);
     }
 
     @Override
